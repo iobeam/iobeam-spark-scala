@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-import com.iobeam.spark.streams.config.DeviceConfig
 import com.iobeam.spark.streams.model.TimeRecord
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.{Milliseconds, ClockWrapper, StreamingContext}
@@ -95,7 +94,7 @@ class AppRunner(app: SparkApp, inputDir: java.net.URI, outputDir: java.net.URI )
         val inputFiles = new java.io.File(inputDir)
           .listFiles.filter(_.getName.endsWith(".csv"))
 
-        val batchQueue = mutable.Queue[RDD[(String, (TimeRecord, DeviceConfig))]]()
+        val batchQueue = mutable.Queue[RDD[(String, TimeRecord)]]()
 
         val conf = new SparkConf().setMaster("local[2]")
         conf.setAppName(app.name)
@@ -125,7 +124,7 @@ class AppRunner(app: SparkApp, inputDir: java.net.URI, outputDir: java.net.URI )
         for (file <- inputFiles) {
             val startLength = results.length
             val ds = AppRunner.loadFile(sc, file.getAbsolutePath)
-            val input = ds.map(item => ("TestDevice", (item, new DeviceConfig(""))))
+            val input = ds.map(item => ("TestDevice", item))
             batchQueue += input
 
             cw.advance(AppRunner.BATCH_DURATION_MILLISECONDS)
