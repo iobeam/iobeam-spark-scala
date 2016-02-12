@@ -106,9 +106,10 @@ class AppRunner(app: SparkApp, inputDir: java.net.URI, outputDir: java.net.URI )
 
         // Create the QueueInputDStream and use it do some processing
         val inputStream = ssc.queueStream(batchQueue)
+        val interface = new AppRunnerInterface(inputStream)
 
         var results = ListBuffer.empty[Array[TimeRecord]]
-        val outputStreams = app.processStream(inputStream)
+        val outputStreams = app.processStream(interface)
         val firstDerived = outputStreams.getTimeSeries.head
 
         firstDerived.getDStream.map{ case (dev, ds: TimeRecord) => ds }.foreachRDD(
