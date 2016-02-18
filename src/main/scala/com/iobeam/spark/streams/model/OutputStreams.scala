@@ -9,10 +9,26 @@ sealed abstract class Stream
 
 /**
   * A collection of output streams representing all the results of a spark app.
-  *
-  * @param stream All of the output streams of an app
   */
-class OutputStreams(val stream: Stream*) {
+class OutputStreams private (val stream: Seq[Stream]) {
+
+  def this(timeSeries: TimeSeriesStream) {
+    this(Seq(timeSeries))
+  }
+
+  def this(triggerSerie: TriggerStream) {
+    this(Seq(triggerSerie))
+  }
+
+  def this(timeSeries: TimeSeriesStream, triggerSeries: TriggerStream) {
+    this(Seq(timeSeries, triggerSeries))
+  }
+
+  // Allow both orders of args to not break when we go back to varargs
+  def this(triggerSeries: TriggerStream, timeSeries: TimeSeriesStream) {
+    this(Seq(timeSeries, triggerSeries))
+  }
+
   /**
     * Returns all of the [[TimeSeriesStream]]s
     * @return
@@ -31,50 +47,27 @@ class OutputStreams(val stream: Stream*) {
     case t: TriggerStream => List(t)
     case _=> List()
   }
-
-  /**
-    * Returns the [[TimeSeriesStream]] for a given name
-    * @param name
-    * @return
-      */
-  def getTimeSeriesByName(name: String): Option[TimeSeriesStream] = getTimeSeries.find(ts => ts.name == name)
 }
 
 /**
   * Base class for all TimeSeriesStreams. These are the derived data
   * streams.
-  *
-  * @param name Name of the stream
   */
-abstract class TimeSeriesStream(val name: String) extends Stream {
+abstract class TimeSeriesStream extends Stream {
   def getDStream: DStream[(String, _ <: TimeRecord)]
 }
 
 /**
-  * A TimeSeriesStream with an explicit partition key.
+  * A TimeSeriesStream with an explicit partition key, which should be a deviceID.
   * The partition key determines how the output is partioned for writing.
   * Thus, for efficiency, it should not be correlated with time.
-  * If you don't know how to partition the data use a [[TimeSeriesStreamSimple]]
   * instead.
   *
-  * @param name Name of the stream
   * @param dataStream DStream of [[TimeRecord]] partitioned by a key.
   */
-class TimeSeriesStreamPartitioned(name: String, val dataStream: DStream[(String,_ <: TimeRecord)] ) extends TimeSeriesStream(name){
+class TimeSeriesStreamPartitioned(val dataStream: DStream[(String,_ <: TimeRecord)] ) extends TimeSeriesStream {
   def getDStream: DStream[(String, _ <: TimeRecord)] = dataStream
 }
-
-/**
-  * A simple [[TimeSeriesStream]] that is not explicitly partitioned.
-  * @param name Name of the stream
-  * @param dataStream DStream of [[TimeRecord]].
-  */
-
-class TimeSeriesStreamSimple (name: String, val dataStream: DStream[_ <: TimeRecord] ) extends TimeSeriesStream(name){
-  //TODO: should the "string" i.e. device id i.e. partition key be random?
-  def getDStream: DStream[(String, _ <: TimeRecord)] = dataStream.map(("", _))
-}
-
 
 object TriggerStream {
   def apply(dataStream: DStream[_ <: TriggerEvent]): TriggerStream = new TriggerStreamSimple(dataStream)
