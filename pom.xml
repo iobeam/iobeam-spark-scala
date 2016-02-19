@@ -4,7 +4,7 @@
 
     <groupId>com.iobeam</groupId>
     <artifactId>iobeam-spark-scala</artifactId>
-    <version>0.3</version>
+    <version>0.4-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <url>http://www.iobeam.com/</url>
@@ -40,7 +40,7 @@
         <connection>scm:git:ssh://git@bitbucket.org/440-labs/iobeam-spark-scala.git</connection>
         <developerConnection>scm:git:ssh://git@bitbucket.org/440-labs/iobeam-spark-scala.git
         </developerConnection>
-        <tag>v0.3</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
