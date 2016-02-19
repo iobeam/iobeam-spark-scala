@@ -16,8 +16,8 @@ class OutputStreams private (val stream: Seq[Stream]) {
     this(Seq(timeSeries))
   }
 
-  def this(triggerSerie: TriggerStream) {
-    this(Seq(triggerSerie))
+  def this(triggerSeries: TriggerStream) {
+    this(Seq(triggerSeries))
   }
 
   def this(timeSeries: TimeSeriesStream, triggerSeries: TriggerStream) {
