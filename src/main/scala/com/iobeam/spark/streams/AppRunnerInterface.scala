@@ -9,17 +9,13 @@ import org.apache.spark.streaming.dstream.DStream
   */
 class AppRunnerInterface(stream: DStream[(String, TimeRecord)]) extends IobeamInterface {
     /**
-      * Logger for user app log ouput
+      * Logger for user app log output
       */
     override def getLogger = LogManager.getLogger(this.getClass)
 
     /**
-      * Returns a stream of RDDs of key, TimeRecord where key is the RDD partitioning key
+      * Returns a stream of RDDs of key, TimeRecord where key is the deviceId
       */
     override def getInputStreamBySource: DStream[(String, TimeRecord)] = stream
 
-    /**
-      * Returns a stream of TimeRecords
-      */
-    override def getInputStreamRecords: DStream[TimeRecord] = stream.map(a => a._2)
 }
