@@ -1,8 +1,8 @@
 package com.iobeam.spark.streams.model
 
 /**
- * A Record represents a collection of data for a specific time-point.
- */
+  * A Record represents a collection of data for a specific time-point.
+  */
 object TimeRecord {
     type Key = String
 
@@ -38,7 +38,7 @@ object TimeRecord {
         def unapply(x: Any): Option[Double] = x match {
             case s: String => {
                 import scala.util.control.Exception.allCatch
-                (allCatch opt s.toDouble)
+                allCatch opt s.toDouble
             }
             case b: Double => Some(b)
             case _ => None
@@ -49,8 +49,9 @@ object TimeRecord {
       * Defines an Ordering on Records by time.
       */
     object TimeOrder extends Ordering[TimeRecord] {
-        def compare(one: TimeRecord, that: TimeRecord): Int =  (one.time - that.time).toInt
+        def compare(one: TimeRecord, that: TimeRecord): Int = (one.time - that.time).toInt
     }
+
 }
 
 /**
@@ -66,20 +67,21 @@ object TimeRecord {
   * series-centric input format, each record will contain a single
   * seriesName and value (there will be no join on time across series).
   *
-  *
   * @param time The time at which the measurement was taken
   * @param data A collection of measurements
   */
-case class TimeRecord(val time: Long, val data: Map[TimeRecord.Key, Any] = Map())  extends Serializable {
+case class TimeRecord(val time: Long, val data: Map[TimeRecord.Key, Any] = Map()) extends Serializable {
 
     /**
       * Returns a map of all key-value pairs stored in the record
+      *
       * @return
       */
     def getData: Map[TimeRecord.Key, Any] = data
 
     /**
       * Returns a new record with additional data.
+      *
       * @param other data to add
       * @return
       */
@@ -87,6 +89,7 @@ case class TimeRecord(val time: Long, val data: Map[TimeRecord.Key, Any] = Map()
 
     /**
       * Returns whether or not all the keys are present.
+      *
       * @param keys
       * @return
       */
@@ -95,36 +98,46 @@ case class TimeRecord(val time: Long, val data: Map[TimeRecord.Key, Any] = Map()
     /**
       * Return the value (as a String) for a key,
       * throwing an error if the key is missing or cannot be converted to a String.
+      *
       * @param key
       * @return
       */
-    def requireString(key: TimeRecord.Key): String  = (getString(key): @unchecked) match {case Some(v) => v}
+    def requireString(key: TimeRecord.Key): String = (getString(key): @unchecked) match {
+        case Some(v) => v
+    }
 
     /**
       * Return the value (as a Double) for a key, throwing an error if the key
       * is missing or cannot be converted to a Double.
+      *
       * @param key
       * @return
       */
-    def requireDouble(key: TimeRecord.Key): Double  = (getDouble(key): @unchecked) match {case Some(v) => v}
+    def requireDouble(key: TimeRecord.Key): Double = (getDouble(key): @unchecked) match {
+        case Some(v) => v
+    }
 
     /**
       * Return the value (as a Boolean) for a key, throwing an error if the key
       * is missing or cannot be converted to a Double.
+      *
       * @param key
       * @return
       */
-    def requireBoolean(key: TimeRecord.Key): Boolean = (getBoolean(key): @unchecked) match {case Some(v) => v}
+    def requireBoolean(key: TimeRecord.Key): Boolean = (getBoolean(key): @unchecked) match {
+        case Some(v) => v
+    }
 
 
     /**
       * Returns an option for a String value corresponding to a key.
       * The option is None if the key does not exist or the value
       * cannot be converted to a String.
+      *
       * @param key
       * @return
       */
-    def getString(key: TimeRecord.Key): Option[String]  = {
+    def getString(key: TimeRecord.Key): Option[String] = {
         val value = data.get(key)
         value match {
             case Some(v) => v match {
@@ -139,10 +152,11 @@ case class TimeRecord(val time: Long, val data: Map[TimeRecord.Key, Any] = Map()
       * Returns an option for a Double value corresponding to a key.
       * The option is None if the key does not exist or the value
       * cannot be converted to a Double.
+      *
       * @param key
       * @return
       */
-    def getDouble(key: TimeRecord.Key): Option[Double]  = {
+    def getDouble(key: TimeRecord.Key): Option[Double] = {
         val value = data.get(key)
         value match {
             case Some(v) => v match {
@@ -157,10 +171,11 @@ case class TimeRecord(val time: Long, val data: Map[TimeRecord.Key, Any] = Map()
       * Returns an option for a Boolean value corresponding to a key.
       * The option is None if the key does not exist or the value
       * cannot be converted to a Boolean.
+      *
       * @param key
       * @return
       */
-    def getBoolean(key: TimeRecord.Key): Option[Boolean]  = {
+    def getBoolean(key: TimeRecord.Key): Option[Boolean] = {
         val value = data.get(key)
         value match {
             case Some(v) => v match {
@@ -170,5 +185,4 @@ case class TimeRecord(val time: Long, val data: Map[TimeRecord.Key, Any] = Map()
             case None => None
         }
     }
-
 }

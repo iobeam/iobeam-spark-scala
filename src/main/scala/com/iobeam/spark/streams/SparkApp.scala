@@ -1,21 +1,17 @@
 package com.iobeam.spark.streams
 
 import com.iobeam.spark.streams.model.OutputStreams
-/**
-  * Defines the basic structure of a spark app.
-  * Inherit from this class to implement an iobeam spark app.
-  */
 
-abstract class SparkApp(val name: String) extends Serializable {
+/**
+  * A trait that defines the basic structure of a spark app.
+  */
+trait SparkApp extends Serializable with Logging {
 
     /**
-      * Returns the OutputStreams representing the results of the spark computation.
-      * Main data processing logic goes here.
+      * The main function of the Spark app. This function should return
+      * the processed streams as an sequence of DStreams.
       *
-      * @return A set of output streams that iobeam's backend will handle,
-      *         either as time series or trigger series.
+      * @return A set of output streams.
       */
-    def processStream(iobeamInterface: IobeamInterface): OutputStreams
-
-    override def toString: String = name
+    def main(appCtx: AppContext): OutputStreams
 }
