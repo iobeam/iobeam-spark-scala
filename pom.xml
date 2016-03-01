@@ -36,27 +36,70 @@
     </developers>
 
     <scm>
-        <url>https://bitbucket.org/440-labs/iobeam-spark-scala</url>
-        <connection>scm:git:ssh://git@bitbucket.org/440-labs/iobeam-spark-scala.git</connection>
-        <developerConnection>scm:git:ssh://git@bitbucket.org/440-labs/iobeam-spark-scala.git
+        <url>git@github.com:iobeam/iobeam-spark-scala.git</url>
+        <connection>scm:git:git@github.com:iobeam/iobeam-spark-scala.git</connection>
+        <developerConnection>scm:git:git@github.com:iobeam/iobeam-spark-scala.git
         </developerConnection>
         <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>Iobeam Releases</name>
-            <url>https://artifactory.iobeam.com/artifactory/libs-release-local</url>
-        </repository>
         <snapshotRepository>
-            <id>snapshots</id>
-            <name>Iobeam Snapshots</name>
-            <url>https://artifactory.iobeam.com/artifactory/libs-snapshot-local</url>
+            <id>sonatype-nexus-staging</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
     </distributionManagement>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${version.sonatype.staging}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>sonatype-nexus-staging</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${version.maven.gpg}</version>
+                <configuration>
+                    <skip>${skipPGP}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>doc-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.scala-tools</groupId>
                 <artifactId>maven-scala-plugin</artifactId>
@@ -138,7 +181,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>${version.maven.release}</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                 </configuration>
@@ -146,7 +189,7 @@
 
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.4</version>
+                <version>${version.maven.source}</version>
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
@@ -227,6 +270,7 @@
 
     </dependencies>
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <spark.version>1.6.0</spark.version>
@@ -234,6 +278,13 @@
         <mockito.version>1.10.19</mockito.version>
         <junit.version>4.12</junit.version>
         <log4j.version>2.3</log4j.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <skipPGP>true</skipPGP>
+        <skipDoc>true</skipDoc>
+
+        <version.maven.gpg>1.6</version.maven.gpg>
+        <version.maven.release>2.5.3</version.maven.release>
+        <version.maven.source>2.4</version.maven.source>
+        <version.sonatype.staging>1.6.6</version.sonatype.staging>
     </properties>
 </project>
