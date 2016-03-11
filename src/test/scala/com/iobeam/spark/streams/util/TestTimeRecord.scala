@@ -6,8 +6,7 @@ import com.iobeam.spark.streams.model.TimeRecord
  * TimeRecord used for tests
  */
 class TestTimeRecord(time: Long, val value: Int) extends TimeRecord(time) {
-    override
-    def toString: String = s"($time, $value)"
+    override def toString: String = s"($time, $value)"
 
     override def equals(other: Any): Boolean =
         other match {

@@ -11,5 +11,9 @@ package com.iobeam.spark.streams.model
   * @param name Name of triggerEvent. Determines the action to be performed.
   * @param data Data for the event.
   */
-case class TriggerEvent(name: String,
-                        data: TimeRecord)
+case class TriggerEvent(name: String, data: TimeRecord)
+
+object TriggerEvent {
+    def apply(name: String, time: Long, data: Map[String, Any]) =
+        new TriggerEvent(name, new TimeRecord(time, data))
+}

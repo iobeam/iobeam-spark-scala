@@ -11,7 +11,7 @@ package com.iobeam.spark
   * ===Set up and Usage===
   *
   * For more information on setting up an iobeam Spark project and implementing an iobeam
-  * Spark app, please refer to our Github repo ([[https://github.com/iobeam/iobeam-spark-scala-maven-archetype]]).
+  * Spark app, please refer to our GitHub repo ([[https://github.com/iobeam/iobeam-spark-scala-maven-archetype]]).
   *
   * ==Model==
   *
