@@ -9,8 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>iobeam-spark-scala-util</artifactId>
-
+    <artifactId>iobeam-spark-scala-deviceops</artifactId>
 
     <build>
         <plugins>
@@ -58,7 +57,7 @@
 <dependencies>
     <dependency>
         <groupId>com.iobeam</groupId>
-        <artifactId>iobeam-spark-scala</artifactId>
+        <artifactId>iobeam-spark-scala-core</artifactId>
         <version>${project.version}</version>
         <exclusions>
             <exclusion>

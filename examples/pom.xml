@@ -32,11 +32,10 @@
             </plugin>
         </plugins>
     </build>
-
     <dependencies>
         <dependency>
             <groupId>com.iobeam</groupId>
-            <artifactId>iobeam-spark-scala</artifactId>
+            <artifactId>iobeam-spark-scala-core</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
@@ -46,5 +45,4 @@
             </exclusions>
         </dependency>
     </dependencies>
-
 </project>
