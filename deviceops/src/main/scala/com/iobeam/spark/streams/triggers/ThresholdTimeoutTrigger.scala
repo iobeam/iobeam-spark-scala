@@ -39,9 +39,19 @@ class ThresholdTimeoutTrigger private(triggerLevel: Double, releaseLevel: Double
         this(triggerLevel, releaseLevel, timeout, event, Some(releaseEvent))
     }
 
-    override def sampleUpdateAndTest(time: Long, readingObj: Any): Option[String] = {
 
-        val thresholdEvent = super.sampleUpdateAndTest(time, readingObj)
+    /**
+      * Called on each sample in series.
+      *
+      * @param timeUs      Sample time in us
+      * @param batchTimeUs RDD time us
+      * @param reading     Value
+      * @return Option[triggerString] id trigger
+      */
+    override def sampleUpdateAndTest(timeUs: Long, batchTimeUs: Long,
+                                     reading: Any): Option[String] = {
+
+        val thresholdEvent = super.sampleUpdateAndTest(timeUs, batchTimeUs, reading)
 
         if (thresholdEvent.isDefined) {
 
@@ -49,7 +59,7 @@ class ThresholdTimeoutTrigger private(triggerLevel: Double, releaseLevel: Double
                 case TriggerNames.TRIGGER =>
                     if (!thresholdTriggerState) {
                         // Start to count time the threshold trigger is fired
-                        stateChangeTime = time
+                        stateChangeTime = timeUs
                         thresholdTriggerState = true
                     }
                 case TriggerNames.RELEASE =>
@@ -65,7 +75,7 @@ class ThresholdTimeoutTrigger private(triggerLevel: Double, releaseLevel: Double
 
         // If this is not triggered and the threshold trigger has triggered longer than timeout ago
         if (!timeoutTriggerState && thresholdTriggerState
-            && (time - stateChangeTime) > (timeout.milliseconds * 1000.0)) {
+            && (timeUs - stateChangeTime) > (timeout.milliseconds * 1000.0)) {
             // timeout trigger has fired
             timeoutTriggerState = true
             Some(event)

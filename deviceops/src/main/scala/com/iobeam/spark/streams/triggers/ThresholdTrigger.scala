@@ -49,6 +49,7 @@ class ThresholdTrigger private(val triggerLevel: Double,
 
     /**
       * Threshold trigger with hysteresis and trigger on release as well
+      *
       * @param triggerLevel level that readings are compared to
       * @param triggerEventName name that is output when a trigger is activated
       * @param releaseLevel level where the trigger state is released
@@ -67,7 +68,7 @@ class ThresholdTrigger private(val triggerLevel: Double,
       * @return None or event name
       */
 
-    def sampleUpdateAndTest(time: Long, readingObj: Any): Option[String] = {
+    def sampleUpdateAndTest(time: Long, batchTimeUs:Long, readingObj: Any): Option[String] = {
 
         if (!readingObj.isInstanceOf[Double]) {
             throw new IllegalArgumentException("Threshold trigger only accepts Double series")
@@ -110,4 +111,5 @@ class ThresholdTrigger private(val triggerLevel: Double,
     def isTriggered: Boolean = triggerState
 
     def isReleased: Boolean = !triggerState
+
 }

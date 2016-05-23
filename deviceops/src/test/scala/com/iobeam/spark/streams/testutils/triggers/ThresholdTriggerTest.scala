@@ -15,13 +15,13 @@ class ThresholdTriggerTest extends FlatSpec with Matchers with MockitoSugar {
 
         val threshold = new ThresholdTrigger(0.7, triggerEvent, 0.5, releaseEvent)
 
-        threshold.sampleUpdateAndTest(0,0.2) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.5) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.7) should equal(Some(triggerEvent))
-        threshold.sampleUpdateAndTest(0,0.8) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.6) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.5) should equal(Some(releaseEvent))
-        threshold.sampleUpdateAndTest(0,0.4) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.2) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.5) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.7) should equal(Some(triggerEvent))
+        threshold.sampleUpdateAndTest(0,42,0.8) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.6) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.5) should equal(Some(releaseEvent))
+        threshold.sampleUpdateAndTest(0,42,0.4) should equal(None)
 
     }
 
@@ -29,13 +29,13 @@ class ThresholdTriggerTest extends FlatSpec with Matchers with MockitoSugar {
 
         val threshold = new ThresholdTrigger(0.7, triggerEvent, 0.5)
 
-        threshold.sampleUpdateAndTest(0,0.2) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.5) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.7) should equal(Some(triggerEvent))
-        threshold.sampleUpdateAndTest(0,0.8) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.6) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.5) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.4) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.2) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.5) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.7) should equal(Some(triggerEvent))
+        threshold.sampleUpdateAndTest(0,42,0.8) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.6) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.5) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.4) should equal(None)
 
     }
 
@@ -43,13 +43,13 @@ class ThresholdTriggerTest extends FlatSpec with Matchers with MockitoSugar {
 
         val threshold = new ThresholdTrigger(0.5, triggerEvent, 0.7, releaseEvent)
 
-        threshold.sampleUpdateAndTest(0,0.2) should equal(Some(triggerEvent))
-        threshold.sampleUpdateAndTest(0,0.5) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.7) should equal(Some(releaseEvent))
-        threshold.sampleUpdateAndTest(0,0.8) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.6) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.5) should equal(Some(triggerEvent))
-        threshold.sampleUpdateAndTest(0,0.4) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.2) should equal(Some(triggerEvent))
+        threshold.sampleUpdateAndTest(0,42,0.5) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.7) should equal(Some(releaseEvent))
+        threshold.sampleUpdateAndTest(0,42,0.8) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.6) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.5) should equal(Some(triggerEvent))
+        threshold.sampleUpdateAndTest(0,42,0.4) should equal(None)
 
     }
 
@@ -57,13 +57,13 @@ class ThresholdTriggerTest extends FlatSpec with Matchers with MockitoSugar {
 
         val threshold = new ThresholdTrigger(0.5, triggerEvent, 0.7)
 
-        threshold.sampleUpdateAndTest(0,0.2) should equal(Some(triggerEvent))
-        threshold.sampleUpdateAndTest(0,0.5) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.7) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.8) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.6) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.5) should equal(Some(triggerEvent))
-        threshold.sampleUpdateAndTest(0,0.4) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.2) should equal(Some(triggerEvent))
+        threshold.sampleUpdateAndTest(0,42,0.5) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.7) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.8) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.6) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.5) should equal(Some(triggerEvent))
+        threshold.sampleUpdateAndTest(0,42,0.4) should equal(None)
 
     }
 
@@ -71,11 +71,11 @@ class ThresholdTriggerTest extends FlatSpec with Matchers with MockitoSugar {
 
         val threshold = new ThresholdTrigger(0.5, triggerEvent, 0.5, releaseEvent)
 
-        threshold.sampleUpdateAndTest(0,0.2) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.5) should equal(Some(triggerEvent))
-        threshold.sampleUpdateAndTest(0,0.7) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.5) should equal(None)
-        threshold.sampleUpdateAndTest(0,0.4) should equal(Some(releaseEvent))
-        threshold.sampleUpdateAndTest(0,0.4) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.2) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.5) should equal(Some(triggerEvent))
+        threshold.sampleUpdateAndTest(0,42,0.7) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.5) should equal(None)
+        threshold.sampleUpdateAndTest(0,42,0.4) should equal(Some(releaseEvent))
+        threshold.sampleUpdateAndTest(0,42,0.4) should equal(None)
     }
 }
