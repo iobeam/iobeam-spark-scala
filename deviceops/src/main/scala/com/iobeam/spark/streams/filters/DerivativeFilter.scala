@@ -11,7 +11,7 @@ class DerivativeFilter extends SeriesFilter {
     var initialized = false
     var output = 0.0
 
-    override def update(t: Long, newSampleObj: Any): Any = {
+    override def update(t: Long, batchTimeUs: Long, newSampleObj: Any): Any = {
         if (!newSampleObj.isInstanceOf[Double]) {
             throw new IllegalArgumentException("Derivative filter only accepts Double")
         }

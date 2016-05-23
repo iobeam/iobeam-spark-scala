@@ -14,5 +14,4 @@ abstract class DeviceFilter extends Serializable {
       * @return filter output
       */
     def update(newSample: TimeRecord): Any
-
 }

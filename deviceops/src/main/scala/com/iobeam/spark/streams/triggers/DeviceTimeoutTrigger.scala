@@ -8,18 +8,22 @@ import org.apache.spark.streaming.Duration
   */
 class DeviceTimeoutTrigger(val timeout: Duration, event: String) extends DeviceTrigger {
 
-    var lastReceived: Long = 0
+    var lastReceivedEventTime: Long = 0
     var isTriggered = false
-
+    val timeoutUs = timeout.milliseconds * 1000
     /**
       * Called on each sample in series.
       *
       * @param record time record
       * @return Option[triggerString] id trigger
       */
-    override def recordUpdateAndTest(record: TimeRecord): Option[String] = {
-        lastReceived = record.time
-        isTriggered = false
+    override def recordUpdateAndTest(record: TimeRecord, batchTimeUs: Long): Option[String] = {
+
+        if (lastReceivedEventTime < record.time) {
+            lastReceivedEventTime = record.time
+            isTriggered = false
+        }
+
         None
     }
 
@@ -28,13 +32,14 @@ class DeviceTimeoutTrigger(val timeout: Duration, event: String) extends DeviceT
       * May return trigger.
       *
       * @param timeUs Batch time
-      * @return Option[triggeString]
+      * @return Option[triggerString]
       */
     override def batchDoneUpdateAndTest(timeUs: Long): Option[String] = {
 
         if(isTriggered) return None
 
-        if(timeUs - lastReceived >= timeout.milliseconds * 1000) {
+        val timeSinceSeenUs = timeUs - lastReceivedEventTime
+        if(timeSinceSeenUs >= timeoutUs) {
            isTriggered = true
            return Some(event)
         }

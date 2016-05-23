@@ -14,7 +14,7 @@ trait DeviceTrigger extends Serializable {
       * @return Option[triggerString] id trigger
       */
 
-    def recordUpdateAndTest(record: TimeRecord): Option[String]
+    def recordUpdateAndTest(record: TimeRecord, batchTimeUs: Long): Option[String]
 
     /**
       * Called when batch is done, used to update periodic state.
@@ -24,4 +24,5 @@ trait DeviceTrigger extends Serializable {
       * @return Option[triggeString]
       */
     def batchDoneUpdateAndTest(timeUs: Long): Option[String]
+
 }

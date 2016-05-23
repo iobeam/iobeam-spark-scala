@@ -17,7 +17,7 @@ class EwmaIrregular(val alpha: Double) extends SeriesFilter {
     var prevSample: Double = 0
     var prevTimestamp: Long = 0
 
-    def update(t: Long, newSampleObj: Any): Double = {
+    override def update(t: Long, batchTimeUs: Long, newSampleObj: Any): Double = {
 
         if (!newSampleObj.isInstanceOf[Double]) {
             throw new IllegalArgumentException("Ewma filter only accpets Double")
@@ -50,6 +50,6 @@ class EwmaIrregular(val alpha: Double) extends SeriesFilter {
         output
     }
 
-    def getValue: Double = output
+    override def getValue: Double = output
 }
 
