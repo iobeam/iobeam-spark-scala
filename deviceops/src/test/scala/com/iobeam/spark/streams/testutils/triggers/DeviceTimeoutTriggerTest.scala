@@ -79,6 +79,5 @@ class DeviceTimeoutTriggerTest extends FlatSpec with Matchers with MockitoSugar 
 
         trigger.batchDoneUpdateAndTest(time) should equal(None)
 
-
     }
 }

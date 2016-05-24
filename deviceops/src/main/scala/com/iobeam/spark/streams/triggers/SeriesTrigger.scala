@@ -21,7 +21,7 @@ trait SeriesTrigger extends Serializable {
       * May return trigger.
       *
       * @param timeUs Batch time
-      * @return Option[triggeString]
+      * @return Option[triggerString]
       */
     def batchDoneUpdateAndTest(timeUs: Long): Option[String] = None
 }
