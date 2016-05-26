@@ -5,7 +5,7 @@
     <groupId>com.iobeam</groupId>
     <artifactId>iobeam-spark-scala</artifactId>
     <packaging>pom</packaging>
-    <version>0.10</version>
+    <version>0.11-SNAPSHOT</version>
     <modules>
         <module>core</module>
         <module>deviceops</module>
@@ -47,7 +47,7 @@
         <connection>scm:git:git@github.com:iobeam/iobeam-spark-scala.git</connection>
         <developerConnection>scm:git:git@github.com:iobeam/iobeam-spark-scala.git
         </developerConnection>
-        <tag>v0.10</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
