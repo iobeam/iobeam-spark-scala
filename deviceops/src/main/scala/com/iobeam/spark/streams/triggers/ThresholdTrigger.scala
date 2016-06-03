@@ -21,6 +21,8 @@ class ThresholdTrigger private(val triggerLevel: Double,
     // Current trigger state, true if triggered, false if released
     private[this] var triggerState = false
 
+    def create : SeriesTrigger = new ThresholdTrigger(triggerLevel, triggerEventName, releaseLevel, releaseEventNameOpt)
+
     /**
       * Threshold trigger without hysteresis.
       *

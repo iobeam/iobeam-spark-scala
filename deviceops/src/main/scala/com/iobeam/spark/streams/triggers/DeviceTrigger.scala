@@ -25,4 +25,12 @@ trait DeviceTrigger extends Serializable {
       */
     def batchDoneUpdateAndTest(timeUs: Long): Option[String]
 
+    /**
+      * This creates a copy of the DeviceTrigger with the same configuration state but possibly
+      * different internal state
+      *
+      * @return
+      */
+    def create: DeviceTrigger
+
 }

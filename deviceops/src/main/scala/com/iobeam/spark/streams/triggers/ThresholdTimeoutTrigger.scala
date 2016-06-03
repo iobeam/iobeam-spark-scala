@@ -39,6 +39,7 @@ class ThresholdTimeoutTrigger private(triggerLevel: Double, releaseLevel: Double
         this(triggerLevel, releaseLevel, timeout, event, Some(releaseEvent))
     }
 
+    override def create : SeriesTrigger = new ThresholdTimeoutTrigger(triggerLevel, releaseLevel, timeout, event, releaseEvent)
 
     /**
       * Called on each sample in series.

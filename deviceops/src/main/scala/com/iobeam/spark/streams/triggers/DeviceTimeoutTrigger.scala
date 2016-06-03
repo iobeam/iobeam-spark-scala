@@ -28,6 +28,8 @@ class DeviceTimeoutTrigger(val timeout: Duration,
         this(timeout, event, Some(onlineEvent), useEventTime)
     }
 
+    def create : DeviceTrigger = new DeviceTimeoutTrigger(timeout, offlineEvent, onlineEvent, useEventTime)
+
     var lastReceivedTime: Long = 0
     // Start as triggered in case first data sent is old
     var isOffline = true

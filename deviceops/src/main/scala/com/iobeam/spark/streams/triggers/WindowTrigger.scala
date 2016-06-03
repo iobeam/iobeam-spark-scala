@@ -12,6 +12,8 @@ class WindowTrigger(windowLen: Duration, func: List[(Long, Any)] => Boolean,
     var window = new scala.collection.mutable.ListBuffer[(Long, Double)]()
     var triggerState = false
 
+    def create : SeriesTrigger = new WindowTrigger(windowLen, func, triggerEventName)
+
     /**
       * Called on each sample in series.
       *

@@ -24,4 +24,12 @@ trait SeriesTrigger extends Serializable {
       * @return Option[triggerString]
       */
     def batchDoneUpdateAndTest(timeUs: Long): Option[String] = None
+
+    /**
+      * This creates a copy of the SeriesTrigger with the same configuration state but possibly
+      * different internal state
+      *
+      * @return
+      */
+    def create: SeriesTrigger
 }

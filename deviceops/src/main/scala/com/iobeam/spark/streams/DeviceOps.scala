@@ -120,7 +120,9 @@ object DeviceOps {
             }
 
             val (_, deviceConf, deviceId, batchTimeUs) = recordsWithConfAndDevice.head
-            deviceState = new DeviceState(deviceConf, deviceId, batchTimeUs)
+            /* need to create a copy to prevent a deviceConf being shared across devices */
+            val copyConf = deviceConf.create
+            deviceState = new DeviceState(copyConf, deviceId, batchTimeUs)
 
         } else {
             deviceState = state.get
