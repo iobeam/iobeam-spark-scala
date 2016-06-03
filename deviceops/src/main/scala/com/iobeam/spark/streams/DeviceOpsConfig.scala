@@ -63,4 +63,15 @@ class DeviceOpsConfig(seriesFilters: Map[String, Seq[SeriesFilterConfiguration]]
 
     def getSeriesTriggers: Map[String, Seq[SeriesTrigger]] = seriesTriggers
 
+    /* creates a copy of the object with the same configuration but not necessarily the same
+       internal state.
+     */
+    def create: DeviceOpsConfig = new DeviceOpsConfig(
+        //map(identity) due to https://issues.scala-lang.org/browse/SI-7005
+        seriesFilters.mapValues(sfSeq => sfSeq.map(sfc => sfc.copy())).map(identity),
+        seriesTriggers.mapValues(stSeq => stSeq.map(st => st.create)).map(identity),
+        deviceFilters.map(dfc => dfc.copy()),
+        deviceTriggers.map(dt => dt.create)
+    )
+
 }
