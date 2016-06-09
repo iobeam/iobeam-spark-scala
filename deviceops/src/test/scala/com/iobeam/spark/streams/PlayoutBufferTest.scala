@@ -1,9 +1,9 @@
 package spark.streams.spark
 
-import com.iobeam.spark.streams.{DeJitterStream, TestTimeRecord}
 import com.iobeam.spark.streams.model.TimeRecord
+import com.iobeam.spark.streams.{DeJitterStream, TestTimeRecord}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.{Seconds, ClockWrapper}
+import org.apache.spark.streaming.{ClockWrapper, Seconds}
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Span}
 import org.scalatest.{FlatSpec, GivenWhenThen, Matchers}
@@ -13,23 +13,24 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 
-class PlayoutBufferTest extends FlatSpec with Matchers with SparkStreamingSpec with GivenWhenThen with Eventually {
+class PlayoutBufferTest extends FlatSpec with Matchers with SparkStreamingSpec with GivenWhenThen
+    with Eventually {
 
     val batches = List(
-        List( // 0-1000
+        List(// 0-1000
             new TestTimeRecord(10, 1),
             new TestTimeRecord(20, 2)
         ),
-        List( // 1000 - 2000
+        List(// 1000 - 2000
             new TestTimeRecord(1010, 3),
             new TestTimeRecord(1020, 4),
             new TestTimeRecord(30, 5) // out of order
         ),
-        List( // 2000 - 3000
+        List(// 2000 - 3000
             new TestTimeRecord(2010, 6),
             new TestTimeRecord(25, 7) // to old
         ),
-        List( // 3000 - 4000
+        List(// 3000 - 4000
             new TestTimeRecord(2020, 8),
             new TestTimeRecord(2030, 9)
         ),
@@ -41,7 +42,7 @@ class PlayoutBufferTest extends FlatSpec with Matchers with SparkStreamingSpec w
         List(
             (10, 1),
             (20, 2),
-            (30,5)
+            (30, 5)
         ),
         List(
             (1010, 3),

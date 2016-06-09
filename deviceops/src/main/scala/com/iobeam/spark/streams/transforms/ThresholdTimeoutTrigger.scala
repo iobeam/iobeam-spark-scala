@@ -1,4 +1,4 @@
-package com.iobeam.spark.streams.triggers
+package com.iobeam.spark.streams.transforms
 
 import org.apache.spark.streaming.Duration
 
@@ -12,34 +12,19 @@ private object TriggerNames {
   * timeout. The threshold values is configured the same way as in [[ThresholdTrigger]].
   * Will only fire a trigger on samples, not on batch complete.
   */
-class ThresholdTimeoutTrigger private(triggerLevel: Double, releaseLevel: Double, timeout: Duration,
-                                      event: String, releaseEvent: Option[String])
-    extends ThresholdTrigger(triggerLevel,
+class ThresholdTimeoutTriggerState(triggerLevel: Double,
+                                   releaseLevel: Double,
+                                   timeout: Duration,
+                                   event: String,
+                                   releaseEvent: Option[String])
+    extends ThresholdTriggerState(triggerLevel,
         TriggerNames.TRIGGER,
         releaseLevel,
-        TriggerNames.RELEASE) {
+        Some(TriggerNames.RELEASE)) {
 
     var thresholdTriggerState = false
     var timeoutTriggerState = false
     var stateChangeTime: Long = 0
-
-    /**
-      * Trigger that only sends event when it triggers.
-      */
-
-    def this(triggerLevel: Double, releaseLevel: Double, timeout: Duration, event: String) = {
-        this(triggerLevel, releaseLevel, timeout, event, None)
-    }
-
-    /**
-      * Trigger that sends events on trigger and release
-      */
-    def this(triggerLevel: Double, releaseLevel: Double, timeout: Duration,
-             event: String, releaseEvent: String) = {
-        this(triggerLevel, releaseLevel, timeout, event, Some(releaseEvent))
-    }
-
-    override def create : SeriesTrigger = new ThresholdTimeoutTrigger(triggerLevel, releaseLevel, timeout, event, releaseEvent)
 
     /**
       * Called on each sample in series.
@@ -85,5 +70,31 @@ class ThresholdTimeoutTrigger private(triggerLevel: Double, releaseLevel: Double
         }
 
     }
+}
 
+class ThresholdTimeoutTrigger private(triggerLevel: Double,
+                                      releaseLevel: Double,
+                                      timeout: Duration,
+                                      event: String,
+                                      releaseEvent: Option[String])
+    extends FieldTransform {
+
+    /**
+      * Trigger that only sends event when it triggers.
+      */
+
+    def this(triggerLevel: Double, releaseLevel: Double, timeout: Duration, event: String) = {
+        this(triggerLevel, releaseLevel, timeout, event, None)
+    }
+
+    /**
+      * Trigger that sends events on trigger and release
+      */
+    def this(triggerLevel: Double, releaseLevel: Double, timeout: Duration,
+             event: String, releaseEvent: String) = {
+        this(triggerLevel, releaseLevel, timeout, event, Some(releaseEvent))
+    }
+
+    override def getNewTransform: FieldTransformState = (new ThresholdTimeoutTriggerState
+    (triggerLevel, releaseLevel, timeout, event, releaseEvent))
 }

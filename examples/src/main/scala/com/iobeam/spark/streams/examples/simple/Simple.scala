@@ -12,15 +12,15 @@ object Simple extends SparkApp {
 
     override def main(appContext: AppContext):
     OutputStreams = {
-        val stream = appContext.getInputStream
-        val derivedStream = stream.mapValues {
+        val stream = appContext.getData("input")
+        val derivedStream = stream.map {
             ds: TimeRecord => {
                 val oldValue = ds.requireDouble("value")
-                val data = Map[String, Any]("value-new" -> (oldValue + 10))
+                val data = Map[String, Any]("value" -> (oldValue + 10))
                 new TimeRecord(ds.time, data)
             }
         }
 
-        OutputStreams(derivedStream)
+        OutputStreams(("myAppOutput", derivedStream))
     }
 }

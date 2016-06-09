@@ -3,9 +3,10 @@ package com.iobeam.spark.streams.util
 import com.iobeam.spark.streams.model.TimeRecord
 
 /**
- * TimeRecord used for tests
- */
-class TestTimeRecord(time: Long, val value: Int) extends TimeRecord(time) {
+  * TimeRecord used for tests
+  */
+class TestTimeRecord(time: Long,
+                     val value: Int) extends TimeRecord(time, Map("namespace" -> "test")) {
     override def toString: String = s"($time, $value)"
 
     override def equals(other: Any): Boolean =

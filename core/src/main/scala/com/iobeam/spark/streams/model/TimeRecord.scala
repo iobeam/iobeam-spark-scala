@@ -26,7 +26,15 @@ object TimeRecord {
         def apply(b: Boolean): Boolean = b
 
         def unapply(x: Any): Option[Boolean] = x match {
-            case s: String => if (s == "true") Some(true) else if (s == "false") Some(false) else None
+            case s: String => if (s == "true") {
+                Some(true)
+            }
+            else if (s == "false") {
+                Some(false)
+            }
+            else {
+                None
+            }
             case b: Boolean => Some(b)
             case _ => None
         }
@@ -70,7 +78,7 @@ object TimeRecord {
   * @param time The time at which the measurement was taken
   * @param data A collection of measurements
   */
-case class TimeRecord(val time: Long, val data: Map[TimeRecord.Key, Any] = Map()) extends Serializable {
+case class TimeRecord(time: Long, data: Map[TimeRecord.Key, Any] = Map()) extends Serializable {
 
     /**
       * Returns a map of all key-value pairs stored in the record
