@@ -54,7 +54,7 @@ addTrigger("Series name", ThresholdTimeoutTrigger(0.7, 0.5, Milliseconds(100), "
 Detecting quick changes in series can be done by connecting a threshold trigger to a derivative filter. 
 
 new DeviceMonitoringConfigurationBuilder().  
-addFilter("cpu", "cpu_derived", Filter.DeriveFilter).
+addFilter("cpu", "cpu_derived", new DerivativeFilter).
 addTrigger("cpu_derived", ThresholdTrigger(1.0,"CPU increase high", 0.0 , "CPU leveled out"))
 
 As noise on a series can make the derivative very jumpy, a smoothing filter can be applied before

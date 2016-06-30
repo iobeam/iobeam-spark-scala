@@ -1,25 +1,25 @@
-package com.iobeam.spark.streams.triggers
+package com.iobeam.spark.streams.transforms
 
 import org.apache.spark.streaming.Duration
 
 /**
   * Apply a trigger function on a time window of data
   */
-class WindowTrigger(windowLen: Duration, func: List[(Long, Any)] => Boolean,
-                            triggerEventName: String) extends SeriesTrigger {
+class WindowTransformState(windowLen: Duration, func: List[(Long, Any)] => Boolean,
+                           triggerEventName: String) extends FieldTransformState {
 
     val windowLenUs = windowLen.milliseconds * 1000
     var window = new scala.collection.mutable.ListBuffer[(Long, Double)]()
     var triggerState = false
 
-    def create : SeriesTrigger = new WindowTrigger(windowLen, func, triggerEventName)
+    def create: FieldTransformState = new WindowTransformState(windowLen, func, triggerEventName)
 
     /**
       * Called on each sample in series.
       *
-      * @param timeUs  Sample time in us
+      * @param timeUs      Sample time in us
       * @param batchTimeUs RDD time in us
-      * @param reading Value
+      * @param reading     Value
       * @return Option[triggerString] id trigger
       */
     override def sampleUpdateAndTest(timeUs: Long,
@@ -51,4 +51,10 @@ class WindowTrigger(windowLen: Duration, func: List[(Long, Any)] => Boolean,
         triggerState = false
         None
     }
+}
+
+class WindowTransform(windowLen: Duration, func: List[(Long, Any)] => Boolean,
+                      triggerEventName: String) extends FieldTransform {
+    override def getNewTransform: FieldTransformState = new WindowTransformState(windowLen, func,
+        triggerEventName)
 }

@@ -24,8 +24,8 @@ object DeJitterStream {
 
         // Get windowSlide time slot of the oldest data
         window.transform(
-            (rdd,
-             time) => rdd.filter(_._2.time < (time - (windowLength - windowSlide)).milliseconds)
+            (rdd, time) =>
+                rdd.filter(_._2.time < (time - (windowLength - windowSlide)).milliseconds)
         )
 
     }

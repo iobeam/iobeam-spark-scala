@@ -1,4 +1,4 @@
-package com.iobeam.spark.streams.filters
+package com.iobeam.spark.streams.transforms
 
 /**
   * Exponential weighted moving average for irregular sampled series
@@ -10,33 +10,36 @@ package com.iobeam.spark.streams.filters
   * @param alpha weight decrease constant
   */
 
-class EwmaIrregular(val alpha: Double) extends SeriesFilter {
+class EwmaIrregularState(val alpha: Double) extends FieldTransformState {
 
     var initiated = false
     var output: Double = 0
     var prevSample: Double = 0
     var prevTimestamp: Long = 0
 
-    override def update(t: Long, batchTimeUs: Long, newSampleObj: Any): Double = {
 
-        if (!newSampleObj.isInstanceOf[Double]) {
-            throw new IllegalArgumentException("Ewma filter only accpets Double")
+    override def sampleUpdateAndTest(timeUs: Long,
+                                     batchTimeUs: Long,
+                                     reading: Any): Option[Any] = {
+
+        if (!reading.isInstanceOf[Double]) {
+            throw new IllegalArgumentException("Ewma filter only accepts Double")
         }
 
-        val newSample = newSampleObj.asInstanceOf[Double]
-        if (t < prevTimestamp) {
+        val newSample = reading.asInstanceOf[Double]
+        if (timeUs < prevTimestamp) {
             throw new IllegalArgumentException("Sample times can not be decreasing")
         }
 
         if (!initiated) {
-            prevTimestamp = t
+            prevTimestamp = timeUs
             output = newSample
             prevSample = newSample
             initiated = true
-            return newSample
+            return Some(newSample)
         }
 
-        val deltaTime = t - prevTimestamp
+        val deltaTime = timeUs - prevTimestamp
 
         val a = deltaTime / alpha
         val u = Math.exp(a * -1.0)
@@ -45,11 +48,12 @@ class EwmaIrregular(val alpha: Double) extends SeriesFilter {
         output = (u * output) + ((v - u) * prevSample) + ((1.0 - v) * newSample)
 
         prevSample = newSample
-        prevTimestamp = t
+        prevTimestamp = timeUs
 
-        output
+        Some(output)
     }
-
-    override def getValue: Double = output
 }
 
+class EwmaIrregular(val alpha: Double) extends FieldTransform {
+    override def getNewTransform: FieldTransformState = new EwmaIrregularState(alpha)
+}

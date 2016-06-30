@@ -1,7 +1,8 @@
 package com.iobeam.spark.streams
 
-import com.iobeam.spark.streams.model.OutputStreams.TimeSeriesDStream
+import com.iobeam.spark.streams.model.OutputStreams.TimeRecordDStream
 import com.iobeam.spark.streams.model.TimeRecord
+import com.iobeam.spark.streams.model.namespaces.DataQuery
 import org.apache.logging.log4j
 import org.apache.logging.log4j.LogManager
 import org.apache.spark.rdd.RDD
@@ -55,7 +56,8 @@ object AppRunner {
     def loadFile(sc: SparkContext, filename: String): RDD[TimeRecord] = {
         val csv = sc.textFile(filename) // original file
         val data = csv.map(line => line.split(",").map(elem => elem.trim)) //lines in rows
-        val header = new AppRunner.SimpleCSVHeader(data.take(1)(0), data.take(2)(1)) // we build our header with the first line
+        val header = new AppRunner.SimpleCSVHeader(data.take(1)(0), data.take(2)(1)) // we build
+        // our header with the first line
         val rows = data.zipWithIndex().filter(_._2 > 0).map(_._1) //drop header
         rows.map(header.toDataSet)
     }
@@ -95,7 +97,7 @@ class AppRunner(app: SparkApp, inputDir: java.net.URI, outputDir: java.net.URI) 
         val inputFiles = new java.io.File(inputDir)
             .listFiles.filter(_.getName.endsWith(".csv"))
 
-        val batchQueue = mutable.Queue[RDD[(String, TimeRecord)]]()
+        val batchQueue = mutable.Queue[RDD[TimeRecord]]()
 
         val conf = new SparkConf().setMaster("local[2]")
         conf.set("spark.streaming.clock", "org.apache.spark.streaming.util.ManualClock")
@@ -107,15 +109,30 @@ class AppRunner(app: SparkApp, inputDir: java.net.URI, outputDir: java.net.URI) 
         val inputStream = ssc.queueStream(batchQueue)
         var results = ListBuffer.empty[Array[TimeRecord]]
         val outputStreams = app.main(new AppContext {
-            override def getInputStream: DStream[(String, TimeRecord)] = inputStream
+             /**
+              * Returns a stream of records from namespace namespaceName.
+              *
+              * @param namespaceName namespace to read
+              * @return timerecords
+              */
+            override def getData(namespaceName: String): DStream[TimeRecord] = throw new NotImplementedError("Get " +
+                    "namespace not implemented")
+
+            /**
+              * Returns records from the namespace matching query.
+              *
+              * @param query set of includes and excludes
+              * @return records from default input namespace matching query
+              */
+            override def getData(query: DataQuery): DStream[TimeRecord] = throw new NotImplementedError("Query " +
+                "namespace not implemented")
         })
 
         for (stream <- outputStreams) {
+
             stream match {
-                case s: TimeSeriesDStream =>
-                    s.map {
-                        case (dev, ds: TimeRecord) => ds
-                    }.foreachRDD((rdd, time) => {
+                case s: TimeRecordDStream =>
+                    s.foreachRDD((rdd, time) => {
                         val res = rdd.collect()
                         results += res.sortBy(ds => ds.time)
                     })
@@ -128,8 +145,7 @@ class AppRunner(app: SparkApp, inputDir: java.net.URI, outputDir: java.net.URI) 
         for (file <- inputFiles) {
             val startLength = results.length
             val ds = AppRunner.loadFile(sc, file.getAbsolutePath)
-            val input = ds.map(item => ("TestDevice", item))
-            batchQueue += input
+            batchQueue += ds
 
             cw.advance(AppRunner.BATCH_DURATION_MILLISECONDS)
 

@@ -1,4 +1,4 @@
-package com.iobeam.spark.streams.triggers
+package com.iobeam.spark.streams.transforms
 
 import com.iobeam.spark.streams.model.TimeRecord
 import org.apache.spark.streaming.Duration
@@ -6,29 +6,12 @@ import org.apache.spark.streaming.Duration
 /**
   * Trigger that detects when a device is offline
   */
-class DeviceTimeoutTrigger(val timeout: Duration,
-                           val offlineEvent: String,
-                           val onlineEvent: Option[String],
-                           val useEventTime: Boolean)
-    extends DeviceTrigger {
 
-    /*
-       Default behavior is to use event time and have no Online event
-     */
-
-    def this(timeout: Duration, event: String) {
-        this(timeout, event, None, true)
-    }
-
-    def this(timeout: Duration, event: String, onlineEvent: String) {
-        this(timeout, event, Some(onlineEvent), true)
-    }
-
-    def this(timeout: Duration, event: String, onlineEvent: String, useEventTime: Boolean) {
-        this(timeout, event, Some(onlineEvent), useEventTime)
-    }
-
-    def create : DeviceTrigger = new DeviceTimeoutTrigger(timeout, offlineEvent, onlineEvent, useEventTime)
+class DeviceTimeoutTriggerState(val timeout: Duration,
+                                val offlineEvent: String,
+                                val onlineEvent: Option[String],
+                                val useEventTime: Boolean)
+    extends NamespaceTransformState {
 
     var lastReceivedTime: Long = 0
     // Start as triggered in case first data sent is old
@@ -41,7 +24,8 @@ class DeviceTimeoutTrigger(val timeout: Duration,
       * @param record time record
       * @return Option[triggerString] id trigger
       */
-    override def recordUpdateAndTest(record: TimeRecord, batchTimeUs: Long): Option[String] = {
+
+    override def recordUpdateAndTest(record: TimeRecord, batchTimeUs: Long): Option[Any] = {
 
         val newReceivedTime = if (useEventTime) {
             record.time
@@ -62,7 +46,7 @@ class DeviceTimeoutTrigger(val timeout: Duration,
             // If it was offline, return onlineEvent
             if (isOffline) {
                 isOffline = false
-                return  onlineEvent
+                return onlineEvent
             }
             // Already online
         }
@@ -79,14 +63,40 @@ class DeviceTimeoutTrigger(val timeout: Duration,
       */
     override def batchDoneUpdateAndTest(timeUs: Long): Option[String] = {
 
-        if(isOffline) return None
+        if (isOffline) return None
 
         val timeSinceSeenUs = timeUs - lastReceivedTime
         if (timeSinceSeenUs >= timeoutUs) {
-           isOffline = true
-           return Some(offlineEvent)
+            isOffline = true
+            return Some(offlineEvent)
         }
 
         None
     }
+}
+
+class DeviceTimeoutTrigger private(val timeout: Duration,
+                                   val offlineEvent: String,
+                                   val onlineEvent: Option[String],
+                                   val useEventTime: Boolean)
+    extends NamespaceTransform {
+
+    /*
+       Default behavior is to use event time and have no Online event
+     */
+
+    def this(timeout: Duration, event: String) {
+        this(timeout, event, None, true)
+    }
+
+    def this(timeout: Duration, event: String, onlineEvent: String) {
+        this(timeout, event, Some(onlineEvent), true)
+    }
+
+    def this(timeout: Duration, event: String, onlineEvent: String, useEventTime: Boolean) {
+        this(timeout, event, Some(onlineEvent), useEventTime)
+    }
+
+    override def getNewTransform: NamespaceTransformState = (new DeviceTimeoutTriggerState
+    (timeout, offlineEvent, onlineEvent, useEventTime))
 }
