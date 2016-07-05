@@ -75,8 +75,8 @@ class BusBunching extends SparkApp {
         bunchingLevels.foreachRDD(rdd => rdd.foreach(a => println("bunchingLevel = " + a)))
         geoSmoothedBunching.foreachRDD(rdd => rdd.foreach(a => println("geoSmoothed = " + a)))
 
-        OutputStreams(("bunchingLevel", bunchingLevels.map(a => a._2.toTimeRecord)),
-            ("geoSmoothed", geoSmoothedBunching.map(a => a._2.toTimeRecord)))
+        OutputStreams(("bunchingLevel", "device_id", bunchingLevels.map(a => a._2.toTimeRecord)),
+            ("geoSmoothed", "lat_long", geoSmoothedBunching.map(a => a._2.toTimeRecord)))
 
     }
 

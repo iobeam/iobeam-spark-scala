@@ -20,7 +20,7 @@ class OutputStreams private(val streams: Seq[TimeRecordDStream]) extends
 
 object OutputStreams {
 
-    class TimeRecordDStream(namespaceName: String, parent: DStream[TimeRecord])
+    class TimeRecordDStream(namespaceName: String, partitionKeyField: String, parent: DStream[TimeRecord])
         extends DStream[TimeRecord](parent.context) {
         override def slideDuration: Duration = parent.slideDuration
 
@@ -31,11 +31,13 @@ object OutputStreams {
 
         def getNamespaceName: String = namespaceName
 
+        def getPartitionFieldName: String = partitionKeyField
+
         def unWrap: DStream[TimeRecord] = parent
     }
 
-    implicit def toTimeRecordDStream(stream: (String, DStream[TimeRecord])): TimeRecordDStream =
-        new TimeRecordDStream(stream._1, stream._2)
+    implicit def toTimeRecordDStream(stream: (String, String, DStream[TimeRecord])): TimeRecordDStream =
+        new TimeRecordDStream(stream._1, stream._2, stream._3)
 
     def apply(timeRecordStream: TimeRecordDStream*) =
         new OutputStreams(Seq(timeRecordStream: _*))
