@@ -15,6 +15,8 @@ import scala.collection.mutable.ListBuffer
 
 object DeviceOps {
 
+    val OUTPUT_PARTITION_FIELD = "device_id"
+
     private def applyFieldTransforms(records: Seq[(TimeRecord, Time)],
                                      deviceState: DeviceState): Seq[TimeRecord] = {
 
@@ -36,7 +38,7 @@ object DeviceOps {
                     if (outputVal.isDefined) {
                         val output = new TimeRecord(record.time,
                             Map("namespace" -> outputSeries.namespace,
-                                "deviceId" -> deviceState.deviceId,
+                                OUTPUT_PARTITION_FIELD -> deviceState.deviceId,
                                 outputSeries.field -> outputVal.get))
 
                         listBuilder.append(output)
@@ -65,7 +67,7 @@ object DeviceOps {
                 if (outputVal.isDefined) {
                     listBuilder.append(new TimeRecord(record.time,
                         Map("namespace" -> outputSeries.namespace,
-                        "deviceId" -> deviceState.deviceId,
+                        OUTPUT_PARTITION_FIELD -> deviceState.deviceId,
                         outputSeries.field -> outputVal.get)))
                 }
             }
@@ -139,7 +141,7 @@ object DeviceOps {
             val triggerName = transformConf._2.batchDoneUpdateAndTest(nowUs)
             if (triggerName.isDefined) {
                 transformedRecords.append(new TimeRecord(nowUs,
-                    Map("deviceId" -> deviceState.deviceId)))
+                    Map(OUTPUT_PARTITION_FIELD -> deviceState.deviceId)))
             }
         }
 
@@ -172,7 +174,7 @@ object DeviceOps {
       */
     def getDeviceOpsOutput(batches: DStream[(String, TimeRecord)],
                            monitoringConfiguration: DeviceOpsConfig): TimeRecordDStream = {
-        (monitoringConfiguration.getWriteNamespace,
+        (monitoringConfiguration.getWriteNamespace, OUTPUT_PARTITION_FIELD,
             setupMonitoring(batches, monitoringConfiguration))
     }
 
@@ -186,6 +188,6 @@ object DeviceOps {
     def monitorDevices(batches: DStream[(String, TimeRecord)],
                        monitoringConfiguration: DeviceOpsConfig): OutputStreams = {
         val series = setupMonitoring(batches, monitoringConfiguration)
-        OutputStreams((monitoringConfiguration.getWriteNamespace, series))
+        OutputStreams((monitoringConfiguration.getWriteNamespace, OUTPUT_PARTITION_FIELD, series))
     }
 }

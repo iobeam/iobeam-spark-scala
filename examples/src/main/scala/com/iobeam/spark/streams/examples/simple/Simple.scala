@@ -21,6 +21,6 @@ object Simple extends SparkApp {
             }
         }
 
-        OutputStreams(("myAppOutput", derivedStream))
+        OutputStreams(("myAppOutput", "device_id", derivedStream))
     }
 }

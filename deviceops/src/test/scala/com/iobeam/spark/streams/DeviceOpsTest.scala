@@ -162,9 +162,9 @@ class DeviceOpsTest extends FlatSpec with Matchers with SparkStreamingSpec with 
                 // Drop the trigger series output
                 .filter(t => !t.has("triggerOut"))
                 // Drop potentially interfering device
-                .filter(t => t.getString("deviceId").get == "TestDev")
+                .filter(t => t.getString("device_id").get == "TestDev")
                 // transform to (deviceId, (time, value))
-                .map(a => (a.getString("deviceId").get,
+                .map(a => (a.getString("device_id").get,
                 (a.time, a.getDouble("seriesOut").get)))
                 .sortBy(a => (a._1, a._2._1)) should equal(correctSeriesOutput(i))
 
