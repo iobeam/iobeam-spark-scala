@@ -21,38 +21,38 @@ class DeviceOpsTest extends FlatSpec with Matchers with SparkStreamingSpec with 
 
     val batches = List(
         List(//
-            ("TestDev", new TestTimeRecord(10, 1.0)),
-            ("TestDev", new TestTimeRecord(11, 100.0)),
-            ("TestDev", new TestTimeRecord(12, 2.0))
+            ("TestDev", new TestTimeRecord(10,"TestDev", 1.0)),
+            ("TestDev", new TestTimeRecord(11,"TestDev", 100.0)),
+            ("TestDev", new TestTimeRecord(12,"TestDev", 2.0))
         ),
         List(//  does not repeat across batches
-            ("TestDev", new TestTimeRecord(13, 1.0)),
-            ("TestDev", new TestTimeRecord(14, 2.0))
+            ("TestDev", new TestTimeRecord(13,"TestDev", 1.0)),
+            ("TestDev", new TestTimeRecord(14,"TestDev", 2.0))
         ),
         List(//  does not repeat within batches
-            ("TestDev", new TestTimeRecord(15, 100.0)), //reset
-            ("TestDev", new TestTimeRecord(16, 2.0)), //fire
-            ("TestDev", new TestTimeRecord(17, 2.0)) //quiet
+            ("TestDev", new TestTimeRecord(15,"TestDev", 100.0)), //reset
+            ("TestDev", new TestTimeRecord(16,"TestDev", 2.0)), //fire
+            ("TestDev", new TestTimeRecord(17,"TestDev", 2.0)) //quiet
         ),
         List(// does not repeat; devices don't interfere
-            ("TestDev", new TestTimeRecord(18, 100.0)), //reset
-            ("TestDev", new TestTimeRecord(19, 1.0)), //fire
-            ("TestDev1", new TestTimeRecord(20, 101.0)), //does not reset
-            ("TestDev", new TestTimeRecord(21, 2.0)) //quiet
+            ("TestDev", new TestTimeRecord(18,"TestDev", 100.0)), //reset
+            ("TestDev", new TestTimeRecord(19,"TestDev", 1.0)), //fire
+            ("TestDev1", new TestTimeRecord(20,"TestDev1", 101.0)), //does not reset
+            ("TestDev", new TestTimeRecord(21,"TestDev", 2.0)) //quiet
         ),
         List(
-            ("TestDev", new TestTimeRecord(22, 100.0)), //reset
-            ("TestDev", new TestTimeRecord(23, 2.0)) //fire
+            ("TestDev", new TestTimeRecord(22,"TestDev", 100.0)), //reset
+            ("TestDev", new TestTimeRecord(23,"TestDev", 2.0)) //fire
         ),
         List(
-            ("TestDev1", new TestTimeRecord(24, 101.0)) // should not reset, other device
+            ("TestDev1", new TestTimeRecord(24,"TestDev1", 101.0)) // should not reset, other device
         ),
         List(
-            ("TestDev", new TestTimeRecord(25, 2.0)) //quiet
+            ("TestDev", new TestTimeRecord(25,"TestDev", 2.0)) //quiet
         ),
         List(
-            ("TestDev", new TestTimeRecord(26, 100.0)), //reset
-            ("TestDev", new TestTimeRecord(27, 2.0)) //fire
+            ("TestDev", new TestTimeRecord(26,"TestDev",100.0)), //reset
+            ("TestDev", new TestTimeRecord(27,"TestDev", 2.0)) //fire
         )
     )
 
@@ -82,35 +82,35 @@ class DeviceOpsTest extends FlatSpec with Matchers with SparkStreamingSpec with 
 
     val correctSeriesOutput = List(
         List(//
-            ("TestDev", (10, 0.0)),
-            ("TestDev", (11, 1.0)),
-            ("TestDev", (12, 100.0))
+            ("TestDev", (10,"TestDev", 0.0)),
+            ("TestDev", (11,"TestDev", 1.0)),
+            ("TestDev", (12, "TestDev",100.0))
         ),
         List(//  does not repeat across batches
-            ("TestDev", (13, 2.0)),
-            ("TestDev", (14, 1.0))
+            ("TestDev", (13,"TestDev", 2.0)),
+            ("TestDev", (14,"TestDev", 1.0))
         ),
         List(//  does not repeat within batches
-            ("TestDev", (15, 2.0)),
-            ("TestDev", (16, 100.0)),
-            ("TestDev", (17, 2.0))
+            ("TestDev", (15,"TestDev", 2.0)),
+            ("TestDev", (16,"TestDev", 100.0)),
+            ("TestDev", (17, "TestDev",2.0))
         ),
         List(// devices don't interfere
-            ("TestDev", (18, 2.0)),
-            ("TestDev", (19, 100.0)),
-            ("TestDev", (21, 1.0))
+            ("TestDev", (18,"TestDev", 2.0)),
+            ("TestDev", (19, "TestDev",100.0)),
+            ("TestDev", (21,"TestDev", 1.0))
         ),
         List(
-            ("TestDev", (22, 2.0)),
-            ("TestDev", (23, 100.0))
+            ("TestDev", (22,"TestDev", 2.0)),
+            ("TestDev", (23,"TestDev", 100.0))
         ),
         List(),
         List(
-            ("TestDev", (25, 2.0))
+            ("TestDev", (25,"TestDev", 2.0))
         ),
         List(
-            ("TestDev", (26, 2.0)),
-            ("TestDev", (27, 100.0))
+            ("TestDev", (26, "TestDev",2.0)),
+            ("TestDev", (27, "TestDev",100.0))
         )
     )
 
@@ -136,7 +136,7 @@ class DeviceOpsTest extends FlatSpec with Matchers with SparkStreamingSpec with 
         // The deviceId is not used in this example.filter(t => !t.has("lowBattery"))
         val deviceTimeRecord = inputStream.map(a => (a._1, a._2))
 
-        val seriesStream = DeviceOps.getDeviceOpsOutput(deviceTimeRecord, config)
+        val seriesStream = DeviceOps.getDeviceOpsOutput(deviceTimeRecord.map(a => a._2), "device_id", config)
 
         seriesStream.foreachRDD(
             rdd => seriesResults.append(rdd.collect.toList)
@@ -166,7 +166,8 @@ class DeviceOpsTest extends FlatSpec with Matchers with SparkStreamingSpec with 
                 // transform to (deviceId, (time, value))
                 .map(a => (a.getString("device_id").get,
                 (a.time, a.getDouble("seriesOut").get)))
-                .sortBy(a => (a._1, a._2._1)) should equal(correctSeriesOutput(i))
+                .sortBy(a => (a._1, a._2._1)) should
+                equal(correctSeriesOutput(i).map(a => (a._1, (a._2._1, a._2._3))))
 
         }
 

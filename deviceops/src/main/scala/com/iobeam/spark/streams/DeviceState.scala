@@ -7,7 +7,7 @@ import org.apache.spark.streaming.Time
   * State container used by update state by key
   */
 class DeviceState(val state: DeviceOpsState,
-                  val deviceId: String,
+                  val deviceId: Any,
                   val initializationTime: Time) extends Serializable {
 
     private var batchDerivedSeries = Seq[TimeRecord]()

@@ -14,8 +14,7 @@ import scala.collection.mutable.ListBuffer
   */
 
 object DeviceOps {
-
-    val OUTPUT_PARTITION_FIELD = "device_id"
+    val DEFAULT_PARTITIONING_FIELD = "device_id"
 
     private def applyFieldTransforms(records: Seq[(TimeRecord, Time)],
                                      deviceState: DeviceState): Seq[TimeRecord] = {
@@ -38,7 +37,7 @@ object DeviceOps {
                     if (outputVal.isDefined) {
                         val output = new TimeRecord(record.time,
                             Map("namespace" -> outputSeries.namespace,
-                                OUTPUT_PARTITION_FIELD -> deviceState.deviceId,
+                                DEFAULT_PARTITIONING_FIELD -> deviceState.deviceId,
                                 outputSeries.field -> outputVal.get))
 
                         listBuilder.append(output)
@@ -67,7 +66,7 @@ object DeviceOps {
                 if (outputVal.isDefined) {
                     listBuilder.append(new TimeRecord(record.time,
                         Map("namespace" -> outputSeries.namespace,
-                        OUTPUT_PARTITION_FIELD -> deviceState.deviceId,
+                        DEFAULT_PARTITIONING_FIELD -> deviceState.deviceId,
                         outputSeries.field -> outputVal.get)))
                 }
             }
@@ -141,7 +140,7 @@ object DeviceOps {
             val triggerName = transformConf._2.batchDoneUpdateAndTest(nowUs)
             if (triggerName.isDefined) {
                 transformedRecords.append(new TimeRecord(nowUs,
-                    Map(OUTPUT_PARTITION_FIELD -> deviceState.deviceId)))
+                    Map(DEFAULT_PARTITIONING_FIELD -> deviceState.deviceId)))
             }
         }
 
@@ -172,10 +171,44 @@ object DeviceOps {
       * @param monitoringConfiguration filters and triggers configuration.
       * @return tuple of output series and trigger events
       */
-    def getDeviceOpsOutput(batches: DStream[(String, TimeRecord)],
+    def getDeviceOpsOutput(batches: DStream[TimeRecord],
+                           deviceField: String,
                            monitoringConfiguration: DeviceOpsConfig): TimeRecordDStream = {
-        (monitoringConfiguration.getWriteNamespace, OUTPUT_PARTITION_FIELD,
-            setupMonitoring(batches, monitoringConfiguration))
+        val keyBatches = batches.map({case(tr: TimeRecord) => (tr.requireString(deviceField), tr)})
+
+        (monitoringConfiguration.getWriteNamespace, deviceField,
+            setupMonitoring(keyBatches, monitoringConfiguration))
+    }
+
+    /**
+      * Setup device monitoring stream processing and get series and trigger events.
+      *
+      * @param batches                 time records
+      * @return tuple of output series and trigger events
+      */
+    def getDeviceOpsOutput(batches: DStream[TimeRecord],
+                           monitoringConfiguration: DeviceOpsConfig): TimeRecordDStream = {
+        val keyBatches = batches.map({case(tr: TimeRecord) => (tr.requireString(DEFAULT_PARTITIONING_FIELD), tr)})
+
+        (monitoringConfiguration.getWriteNamespace,DEFAULT_PARTITIONING_FIELD,
+            setupMonitoring(keyBatches, monitoringConfiguration))
+    }
+
+    /**
+      * Setup device monitoring stream processing and get OutputStreams.
+      *
+      * @param batches                 time records
+      * @param deviceField namespace field that identifies a device
+      * @param monitoringConfiguration filters and triggers configuration.
+      * @return OutputStreams
+      */
+    def monitorDevices(batches: DStream[TimeRecord],
+                       deviceField: String,
+                       monitoringConfiguration: DeviceOpsConfig): OutputStreams = {
+        val keyBatches = batches.map({case(tr: TimeRecord) => (tr.requireString(deviceField), tr)})
+
+        val series = setupMonitoring(keyBatches, monitoringConfiguration)
+        OutputStreams((monitoringConfiguration.getWriteNamespace, deviceField, series))
     }
 
     /**
@@ -185,9 +218,8 @@ object DeviceOps {
       * @param monitoringConfiguration filters and triggers configuration.
       * @return OutputStreams
       */
-    def monitorDevices(batches: DStream[(String, TimeRecord)],
-                       monitoringConfiguration: DeviceOpsConfig): OutputStreams = {
-        val series = setupMonitoring(batches, monitoringConfiguration)
-        OutputStreams((monitoringConfiguration.getWriteNamespace, OUTPUT_PARTITION_FIELD, series))
+    def monitorDevices(batches: DStream[TimeRecord],
+                      monitoringConfiguration: DeviceOpsConfig): OutputStreams = {
+        monitorDevices(batches, DeviceOps.DEFAULT_PARTITIONING_FIELD, monitoringConfiguration)
     }
 }

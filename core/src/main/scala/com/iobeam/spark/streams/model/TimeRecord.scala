@@ -53,6 +53,20 @@ object TimeRecord {
         }
     }
 
+
+    object LongType extends DataType {
+        def apply(b: Long): Long = b
+
+        def unapply(x: Any): Option[Long] = x match {
+            case s: String => {
+                import scala.util.control.Exception.allCatch
+                allCatch opt s.toLong
+            }
+            case b: Long => Some(b)
+            case _ => None
+        }
+    }
+
     /**
       * Defines an Ordering on Records by time.
       */
@@ -125,6 +139,18 @@ case class TimeRecord(time: Long, data: Map[TimeRecord.Key, Any] = Map()) extend
         case Some(v) => v
     }
 
+
+    /**
+      * Return the value (as a Long) for a key, throwing an error if the key
+      * is missing or cannot be converted to a Double.
+      *
+      * @param key
+      * @return
+      */
+    def requireLong(key: TimeRecord.Key): Long = (getLong(key): @unchecked) match {
+        case Some(v) => v
+    }
+
     /**
       * Return the value (as a Boolean) for a key, throwing an error if the key
       * is missing or cannot be converted to a Double.
@@ -136,6 +162,19 @@ case class TimeRecord(time: Long, data: Map[TimeRecord.Key, Any] = Map()) extend
         case Some(v) => v
     }
 
+    /**
+      * Return the value (as a any) for a key, throwing an error if the key
+      * is missing or cannot be converted to a Double.
+      *
+      * @param key
+      * @return
+      */
+    def requireAny(key: TimeRecord.Key): Any = (this.data(key): @unchecked) match {
+        case Some(v: String) => v.asInstanceOf[Any]
+        case Some(v: Double) => v.asInstanceOf[Any]
+        case Some(v: Long) => v.asInstanceOf[Any]
+        case Some(v: Boolean) => v.asInstanceOf[Any]
+    }
 
     /**
       * Returns an option for a String value corresponding to a key.
@@ -169,6 +208,24 @@ case class TimeRecord(time: Long, data: Map[TimeRecord.Key, Any] = Map()) extend
         value match {
             case Some(v) => v match {
                 case TimeRecord.DoubleType(str) => Some(str)
+                case _ => None
+            }
+            case None => None
+        }
+    }
+    /**
+      * Returns an option for a Double value corresponding to a key.
+      * The option is None if the key does not exist or the value
+      * cannot be converted to a Double.
+      *
+      * @param key
+      * @return
+      */
+    def getLong(key: TimeRecord.Key): Option[Long] = {
+        val value = data.get(key)
+        value match {
+            case Some(v) => v match {
+                case TimeRecord.LongType(str) => Some(str)
                 case _ => None
             }
             case None => None

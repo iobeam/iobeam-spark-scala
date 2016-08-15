@@ -18,66 +18,66 @@ class DeviceOpsTestSimulCreate extends FlatSpec with Matchers with SparkStreamin
 
     val batches = List(
         List(//
-            ("TestDev", new TestTimeRecord(10, 1.0)),
-            ("TestDev", new TestTimeRecord(11, 100.0)),
-            ("TestDev", new TestTimeRecord(12, 2.0)),
-            ("TestDev1", new TestTimeRecord(13, 100.0)),
-            ("TestDev2", new TestTimeRecord(13, 100.0)),
-            ("TestDev3", new TestTimeRecord(13, 100.0)),
-            ("TestDev4", new TestTimeRecord(13, 100.0)),
-            ("TestDev5", new TestTimeRecord(13, 100.0)),
-            ("TestDev6", new TestTimeRecord(13, 100.0)),
-            ("TestDev7", new TestTimeRecord(13, 100.0)),
-            ("TestDev8", new TestTimeRecord(13, 100.0)),
-            ("TestDev9", new TestTimeRecord(13, 100.0)),
-            ("TestDev10", new TestTimeRecord(13, 100.0)),
-            ("TestDev11", new TestTimeRecord(13, 100.0)),
-            ("TestDev12", new TestTimeRecord(13, 100.0)),
-            ("TestDev22", new TestTimeRecord(13, 100.0)),
-            ("TestDev23", new TestTimeRecord(13, 100.0)),
-            ("TestDev24", new TestTimeRecord(13, 100.0)),
-            ("TestDev25", new TestTimeRecord(13, 100.0)),
-            ("TestDev26", new TestTimeRecord(13, 100.0)),
-            ("TestDev27", new TestTimeRecord(13, 100.0)),
-            ("TestDev28", new TestTimeRecord(13, 100.0)),
-            ("TestDev29", new TestTimeRecord(13, 100.0)),
-            ("TestDev30", new TestTimeRecord(13, 100.0)),
-            ("TestDev31", new TestTimeRecord(13, 100.0))
+            new TestTimeRecord(10, "TestDev", 1.0),
+            new TestTimeRecord(11, "TestDev",  100.0),
+            new TestTimeRecord(12, "TestDev", 2.0),
+            new TestTimeRecord(13, "TestDev1",  100.0),
+            new TestTimeRecord(13, "TestDev2", 100.0),
+            new TestTimeRecord(13, "TestDev3", 100.0),
+            new TestTimeRecord(13, "TestDev4", 100.0),
+            new TestTimeRecord(13, "TestDev5", 100.0),
+            new TestTimeRecord(13, "TestDev6", 100.0),
+            new TestTimeRecord(13, "TestDev7",  100.0),
+            new TestTimeRecord(13, "TestDev8", 100.0),
+            new TestTimeRecord(13, "TestDev9", 100.0),
+            new TestTimeRecord(13, "TestDev10", 100.0),
+            new TestTimeRecord(13, "TestDev11",  100.0),
+            new TestTimeRecord(13, "TestDev12",  100.0),
+            new TestTimeRecord(13, "TestDev22", 100.0),
+            new TestTimeRecord(13, "TestDev23",  100.0),
+            new TestTimeRecord(13, "TestDev24",  100.0),
+            new TestTimeRecord(13, "TestDev25",  100.0),
+            new TestTimeRecord(13, "TestDev26", 100.0),
+            new TestTimeRecord(13, "TestDev27", 100.0),
+            new TestTimeRecord(13, "TestDev28", 100.0),
+            new TestTimeRecord(13, "TestDev29", 100.0),
+            new TestTimeRecord(13, "TestDev30",100.0),
+            new TestTimeRecord(13, "TestDev31",  100.0)
         ),
         List(//  does not repeat across batches
-            ("TestDev", new TestTimeRecord(13, 1.0)),
-            ("TestDev", new TestTimeRecord(14, 2.0))
+            new TestTimeRecord(13, "TestDev",  1.0),
+            new TestTimeRecord(14, "TestDev",  2.0)
         ),
         List(
-            ("TestDev1", new TestTimeRecord(24, 100.0)),
-            ("TestDev2", new TestTimeRecord(24, 100.0)),
-            ("TestDev3", new TestTimeRecord(24, 100.0)),
-            ("TestDev4", new TestTimeRecord(24, 100.0)),
-            ("TestDev5", new TestTimeRecord(24, 100.0)),
-            ("TestDev6", new TestTimeRecord(24, 100.0)),
-            ("TestDev7", new TestTimeRecord(24, 100.0)),
-            ("TestDev8", new TestTimeRecord(24, 100.0)),
-            ("TestDev9", new TestTimeRecord(24, 100.0)),
-            ("TestDev10", new TestTimeRecord(24, 100.0)),
-            ("TestDev11", new TestTimeRecord(24, 100.0)),
-            ("TestDev12", new TestTimeRecord(24, 100.0)),
-            ("TestDev22", new TestTimeRecord(24, 100.0)),
-            ("TestDev23", new TestTimeRecord(24, 100.0)),
-            ("TestDev24", new TestTimeRecord(24, 100.0)),
-            ("TestDev25", new TestTimeRecord(24, 100.0)),
-            ("TestDev26", new TestTimeRecord(24, 100.0)),
-            ("TestDev27", new TestTimeRecord(24, 100.0)),
-            ("TestDev28", new TestTimeRecord(24, 100.0)),
-            ("TestDev29", new TestTimeRecord(24, 100.0)),
-            ("TestDev30", new TestTimeRecord(24, 100.0)),
-            ("TestDev31", new TestTimeRecord(24, 100.0))
+            new TestTimeRecord(24, "TestDev1", 100.0),
+            new TestTimeRecord(24, "TestDev2",  100.0),
+            new TestTimeRecord(24, "TestDev3", 100.0),
+            new TestTimeRecord(24, "TestDev4", 100.0),
+            new TestTimeRecord(24, "TestDev5", 100.0),
+            new TestTimeRecord(24, "TestDev6", 100.0),
+            new TestTimeRecord(24, "TestDev7", 100.0),
+            new TestTimeRecord(24, "TestDev8", 100.0),
+            new TestTimeRecord(24, "TestDev9", 100.0),
+            new TestTimeRecord(24, "TestDev10", 100.0),
+            new TestTimeRecord(24, "TestDev11", 100.0),
+            new TestTimeRecord(24, "TestDev12", 100.0),
+            new TestTimeRecord(24, "TestDev22", 100.0),
+            new TestTimeRecord(24, "TestDev23", 100.0),
+            new TestTimeRecord(24, "TestDev24", 100.0),
+            new TestTimeRecord(24, "TestDev25", 100.0),
+            new TestTimeRecord(24, "TestDev26", 100.0),
+            new TestTimeRecord(24, "TestDev27", 100.0),
+            new TestTimeRecord(24, "TestDev28", 100.0),
+            new TestTimeRecord(24, "TestDev29", 100.0),
+            new TestTimeRecord(24, "TestDev30", 100.0),
+            new TestTimeRecord(24, "TestDev31", 100.0)
         ),
         List(
-            ("TestDev", new TestTimeRecord(25, 2.0)) //quiet
+            new TestTimeRecord(25, "TestDev", 2.0) //quiet
         ),
         List(
-            ("TestDev", new TestTimeRecord(26, 100.0)), //reset
-            ("TestDev", new TestTimeRecord(27, 2.0)) //fire
+            new TestTimeRecord(26, "TestDev", 100.0), //reset
+            new TestTimeRecord(27, "TestDev", 2.0) //fire
         )
     )
 
@@ -111,10 +111,10 @@ class DeviceOpsTestSimulCreate extends FlatSpec with Matchers with SparkStreamin
         val inputStream = ssc.queueStream(batchQueue)
 
         // The deviceId is not used in this example
-        val deviceTimeRecord = inputStream.map(a => (a._1, a._2))
+        val timeRecordStrem = inputStream.map(a => a._2)
 
 
-        val triggerStream = DeviceOps.getDeviceOpsOutput(deviceTimeRecord, config)
+        val triggerStream = DeviceOps.getDeviceOpsOutput(timeRecordStrem, "device_id", config)
 
         triggerStream.foreachRDD {
             rdd => results.append(rdd.collect().toList)
@@ -125,7 +125,9 @@ class DeviceOpsTestSimulCreate extends FlatSpec with Matchers with SparkStreamin
         ssc.start()
 
         for ((batch, i) <- batches.zipWithIndex) {
-            batchQueue += ssc.sparkContext.makeRDD(batch)
+            batchQueue += ssc.sparkContext.makeRDD(batch.map({
+                case(tr: TimeRecord) => (tr.device_id, tr)
+            }))
 
             clock.advance(1000)
             eventually {
