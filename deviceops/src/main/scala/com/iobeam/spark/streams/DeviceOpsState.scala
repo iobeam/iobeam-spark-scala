@@ -7,7 +7,7 @@ import com.iobeam.spark.streams.transforms._
   * Store of configured filters.
   */
 object DeviceOpsConfig {
-    val DEFAULT_READ_NAMESPACE = "default"
+    val DEFAULT_READ_NAMESPACE = "input"
     val DEFAULT_WRITE_NAMESPACE = "device_ops"
 }
 

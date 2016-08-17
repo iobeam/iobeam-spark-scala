@@ -134,9 +134,9 @@ class DeviceOpsTest extends FlatSpec with Matchers with SparkStreamingSpec with 
         val inputStream = ssc.queueStream(batchQueue)
 
         // The deviceId is not used in this example.filter(t => !t.has("lowBattery"))
-        val deviceTimeRecord = inputStream.map(a => (a._1, a._2))
+        val deviceTimeRecord = inputStream.map(a => a._2)
 
-        val seriesStream = DeviceOps.getDeviceOpsOutput(deviceTimeRecord.map(a => a._2), "device_id", config)
+        val seriesStream = DeviceOps.getDeviceOpsOutput(deviceTimeRecord, "device_id", config)
 
         seriesStream.foreachRDD(
             rdd => seriesResults.append(rdd.collect.toList)
