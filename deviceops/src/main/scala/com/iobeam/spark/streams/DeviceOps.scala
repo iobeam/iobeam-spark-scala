@@ -23,22 +23,18 @@ object DeviceOps {
 
         // apply series on all new records and the derived records from the last batch
         for ((record, time) <- records) {
-
-            val namespaceName = record.getString("namespace").getOrElse("default")
-
-            for ((series, reading) <- record.getData) {
+            for ((field, reading) <- record.getData) {
                 for (transformConf <-
                      deviceState.state.getFieldsTransforms
-                         .getOrElse(NamespaceField(namespaceName, series), Seq())) {
-                    val outputSeries = transformConf.outputSeries
+                         .getOrElse(field, Seq())) {
+                    val outputSeries = transformConf.outputField
                     val outputVal = transformConf.transform
                         .sampleUpdateAndTest(record.time, time.milliseconds * 1000, reading)
 
                     if (outputVal.isDefined) {
                         val output = new TimeRecord(record.time,
-                            Map("namespace" -> outputSeries.namespace,
-                                DEFAULT_PARTITIONING_FIELD -> deviceState.deviceId,
-                                outputSeries.field -> outputVal.get))
+                            Map(DEFAULT_PARTITIONING_FIELD -> deviceState.deviceId,
+                                outputSeries -> outputVal.get))
 
                         listBuilder.append(output)
                     }
@@ -55,9 +51,7 @@ object DeviceOps {
         val listBuilder = new ListBuffer[TimeRecord]
         for ((record, time) <- records) {
 
-            val namespaceName = record.getString("namespace").getOrElse("default")
             val transforms = deviceState.state.getNamespaceTransforms
-                .getOrElse(namespaceName, Seq())
 
             for ((outputSeries, transform) <- transforms) {
 
@@ -65,9 +59,8 @@ object DeviceOps {
                 val outputVal = transform.recordUpdateAndTest(record, timeUs)
                 if (outputVal.isDefined) {
                     listBuilder.append(new TimeRecord(record.time,
-                        Map("namespace" -> outputSeries.namespace,
-                        DEFAULT_PARTITIONING_FIELD -> deviceState.deviceId,
-                        outputSeries.field -> outputVal.get)))
+                        Map(DEFAULT_PARTITIONING_FIELD -> deviceState.deviceId,
+                        outputSeries -> outputVal.get)))
                 }
             }
         }
@@ -121,8 +114,8 @@ object DeviceOps {
             deviceState.getBatchTime + Seconds(SparkEnv.get.conf.get("spark.batch.duration.s",
                 "0").toInt)
         } else {
-            val (_, _, _, batchTimeUs) = recordsWithConfAndDevice.head
-            batchTimeUs
+            val (_, _, _, batchTime) = recordsWithConfAndDevice.head
+            batchTime
         }
 
         transformedRecords ++= applyNamespaceTransforms(sortedBatch, deviceState)
@@ -135,7 +128,7 @@ object DeviceOps {
 
         val transforms = deviceState.state.getNamespaceTransforms
 
-        for (transformConf <- transforms.values.flatMap(a => a)) {
+        for (transformConf <- transforms) {
 
             val triggerName = transformConf._2.batchDoneUpdateAndTest(nowUs)
             if (triggerName.isDefined) {
