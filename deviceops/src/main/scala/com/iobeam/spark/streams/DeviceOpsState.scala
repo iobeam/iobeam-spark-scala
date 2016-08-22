@@ -28,9 +28,7 @@ class DeviceOpsConfig extends Serializable {
         this
     }
 
-    def addNamespaceTransform(readNamespace: String,
-                              writeNamespace: String,
-                              writeField: String,
+    def addNamespaceTransform(writeField: String,
                               namespaceTransform: NamespaceTransform): DeviceOpsConfig = {
         this.namespaceTransforms = this.namespaceTransforms ++ Seq((writeField, namespaceTransform))
 
