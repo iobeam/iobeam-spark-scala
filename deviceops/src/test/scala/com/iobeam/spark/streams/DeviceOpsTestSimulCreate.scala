@@ -19,38 +19,38 @@ class DeviceOpsTestSimulCreate extends FlatSpec with Matchers with SparkStreamin
     val batches = List(
         List(//
             new TestTimeRecord(10, "TestDev", 1.0),
-            new TestTimeRecord(11, "TestDev",  100.0),
+            new TestTimeRecord(11, "TestDev", 100.0),
             new TestTimeRecord(12, "TestDev", 2.0),
-            new TestTimeRecord(13, "TestDev1",  100.0),
+            new TestTimeRecord(13, "TestDev1", 100.0),
             new TestTimeRecord(13, "TestDev2", 100.0),
             new TestTimeRecord(13, "TestDev3", 100.0),
             new TestTimeRecord(13, "TestDev4", 100.0),
             new TestTimeRecord(13, "TestDev5", 100.0),
             new TestTimeRecord(13, "TestDev6", 100.0),
-            new TestTimeRecord(13, "TestDev7",  100.0),
+            new TestTimeRecord(13, "TestDev7", 100.0),
             new TestTimeRecord(13, "TestDev8", 100.0),
             new TestTimeRecord(13, "TestDev9", 100.0),
             new TestTimeRecord(13, "TestDev10", 100.0),
-            new TestTimeRecord(13, "TestDev11",  100.0),
-            new TestTimeRecord(13, "TestDev12",  100.0),
+            new TestTimeRecord(13, "TestDev11", 100.0),
+            new TestTimeRecord(13, "TestDev12", 100.0),
             new TestTimeRecord(13, "TestDev22", 100.0),
-            new TestTimeRecord(13, "TestDev23",  100.0),
-            new TestTimeRecord(13, "TestDev24",  100.0),
-            new TestTimeRecord(13, "TestDev25",  100.0),
+            new TestTimeRecord(13, "TestDev23", 100.0),
+            new TestTimeRecord(13, "TestDev24", 100.0),
+            new TestTimeRecord(13, "TestDev25", 100.0),
             new TestTimeRecord(13, "TestDev26", 100.0),
             new TestTimeRecord(13, "TestDev27", 100.0),
             new TestTimeRecord(13, "TestDev28", 100.0),
             new TestTimeRecord(13, "TestDev29", 100.0),
-            new TestTimeRecord(13, "TestDev30",100.0),
-            new TestTimeRecord(13, "TestDev31",  100.0)
+            new TestTimeRecord(13, "TestDev30", 100.0),
+            new TestTimeRecord(13, "TestDev31", 100.0)
         ),
         List(//  does not repeat across batches
-            new TestTimeRecord(13, "TestDev",  1.0),
-            new TestTimeRecord(14, "TestDev",  2.0)
+            new TestTimeRecord(13, "TestDev", 1.0),
+            new TestTimeRecord(14, "TestDev", 2.0)
         ),
         List(
             new TestTimeRecord(24, "TestDev1", 100.0),
-            new TestTimeRecord(24, "TestDev2",  100.0),
+            new TestTimeRecord(24, "TestDev2", 100.0),
             new TestTimeRecord(24, "TestDev3", 100.0),
             new TestTimeRecord(24, "TestDev4", 100.0),
             new TestTimeRecord(24, "TestDev5", 100.0),
@@ -126,7 +126,7 @@ class DeviceOpsTestSimulCreate extends FlatSpec with Matchers with SparkStreamin
 
         for ((batch, i) <- batches.zipWithIndex) {
             batchQueue += ssc.sparkContext.makeRDD(batch.map({
-                case(tr: TimeRecord) => (tr.device_id, tr)
+                case (tr: TimeRecord) => (tr.device_id, tr)
             }))
 
             clock.advance(1000)

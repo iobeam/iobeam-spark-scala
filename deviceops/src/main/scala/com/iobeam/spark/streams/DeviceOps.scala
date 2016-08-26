@@ -1,7 +1,6 @@
 package com.iobeam.spark.streams
 
 import com.iobeam.spark.streams.model.OutputStreams.TimeRecordDStream
-import com.iobeam.spark.streams.model.namespaces.NamespaceField
 import com.iobeam.spark.streams.model.{OutputStreams, TimeRecord}
 import org.apache.spark.SparkEnv
 import org.apache.spark.streaming.dstream.DStream
@@ -14,30 +13,49 @@ import scala.collection.mutable.ListBuffer
   */
 
 object DeviceOps {
-    val DEFAULT_PARTITIONING_FIELD = "device_id"
 
     private def applyFieldTransforms(records: Seq[(TimeRecord, Time)],
                                      deviceState: DeviceState): Seq[TimeRecord] = {
 
         val listBuilder = new ListBuffer[TimeRecord]
 
-        // apply series on all new records and the derived records from the last batch
         for ((record, time) <- records) {
             for ((field, reading) <- record.getData) {
                 for (transformConf <-
                      deviceState.state.getFieldsTransforms
                          .getOrElse(field, Seq())) {
-                    val outputSeries = transformConf.outputField
+                    val outputField = transformConf.outputField
                     val outputVal = transformConf.transform
                         .sampleUpdateAndTest(record.time, time.milliseconds * 1000, reading)
 
                     if (outputVal.isDefined) {
                         val output = new TimeRecord(record.time,
-                            Map(DEFAULT_PARTITIONING_FIELD -> deviceState.deviceId,
-                                outputSeries -> outputVal.get))
+                            Map(deviceState.deviceId -> deviceState.deviceId,
+                                outputField -> outputVal.get))
 
                         listBuilder.append(output)
                     }
+                }
+            }
+        }
+
+        listBuilder
+    }
+
+
+    private def applyFieldTransformsBatchEnd(timeUs: Long,
+                                             deviceState: DeviceState): Seq[TimeRecord] = {
+        val listBuilder = new ListBuffer[TimeRecord]
+        for (transforms <- deviceState.state.getFieldsTransforms.values) {
+            for (transformConf <- transforms) {
+                val outputVal = transformConf.transform
+                    .batchDoneUpdateAndTest(timeUs)
+                if (outputVal.isDefined) {
+                    val output = new TimeRecord(timeUs,
+                        Map(deviceState.deviceIdField -> deviceState.deviceId,
+                            transformConf.outputField -> outputVal.get))
+
+                    listBuilder.append(output)
                 }
             }
         }
@@ -49,21 +67,40 @@ object DeviceOps {
                                          deviceState: DeviceState): Seq[TimeRecord] = {
 
         val listBuilder = new ListBuffer[TimeRecord]
+        val transforms = deviceState.state.getNamespaceTransforms
+
         for ((record, time) <- records) {
 
-            val transforms = deviceState.state.getNamespaceTransforms
-
-            for ((outputSeries, transform) <- transforms) {
+            for ((outputField, transform) <- transforms) {
 
                 val timeUs = time.milliseconds * 1000
                 val outputVal = transform.recordUpdateAndTest(record, timeUs)
                 if (outputVal.isDefined) {
                     listBuilder.append(new TimeRecord(record.time,
-                        Map(DEFAULT_PARTITIONING_FIELD -> deviceState.deviceId,
-                        outputSeries -> outputVal.get)))
+                        Map(deviceState.deviceIdField -> deviceState.deviceId,
+                            outputField -> outputVal.get)))
                 }
             }
         }
+
+        listBuilder
+    }
+
+    private def applyNamespaceTransformsBatchEnd(timeUs: Long,
+                                         deviceState: DeviceState): Seq[TimeRecord] = {
+
+        val listBuilder = new ListBuffer[TimeRecord]
+        val transforms = deviceState.state.getNamespaceTransforms
+
+        for ((outputField, transform) <- transforms) {
+
+                val outputVal = transform.batchDoneUpdateAndTest(timeUs)
+                if (outputVal.isDefined) {
+                    listBuilder.append(new TimeRecord(timeUs,
+                        Map(deviceState.deviceIdField -> deviceState.deviceId,
+                            outputField -> outputVal.get)))
+                }
+            }
 
         listBuilder
     }
@@ -96,7 +133,8 @@ object DeviceOps {
             val (_, deviceConf, deviceId, batchTimeUs) = recordsWithConfAndDevice.head
             // Build a new set of initiated transforms
             val deviceTransforms = deviceConf.build
-            deviceState = new DeviceState(deviceTransforms, deviceId, batchTimeUs)
+            deviceState = new DeviceState(deviceTransforms,
+                deviceConf.deviceField, deviceId, batchTimeUs)
 
         } else {
             deviceState = state.get
@@ -118,24 +156,17 @@ object DeviceOps {
             batchTime
         }
 
+        // apply namespace transforms
         transformedRecords ++= applyNamespaceTransforms(sortedBatch, deviceState)
 
         // apply field filters to the new Data and the output from previous batch
         transformedRecords ++= applyFieldTransforms(sortedBatch ++ deviceState.getBatchOutputSeries
-                .map(a => (a, batchTimeStamp)), deviceState)
+            .map(a => (a, batchTimeStamp)), deviceState)
 
         val nowUs: Long = batchTimeStamp.milliseconds * 1000
 
-        val transforms = deviceState.state.getNamespaceTransforms
-
-        for (transformConf <- transforms) {
-
-            val triggerName = transformConf._2.batchDoneUpdateAndTest(nowUs)
-            if (triggerName.isDefined) {
-                transformedRecords.append(new TimeRecord(nowUs,
-                    Map(DEFAULT_PARTITIONING_FIELD -> deviceState.deviceId)))
-            }
-        }
+        transformedRecords ++= applyNamespaceTransformsBatchEnd(nowUs, deviceState)
+        transformedRecords ++= applyFieldTransformsBatchEnd(nowUs, deviceState)
 
         if (sortedBatch.isEmpty) {
             deviceState.updateState(transformedRecords, batchTimeStamp)
@@ -167,7 +198,8 @@ object DeviceOps {
     def getDeviceOpsOutput(batches: DStream[TimeRecord],
                            deviceField: String,
                            monitoringConfiguration: DeviceOpsConfig): TimeRecordDStream = {
-        val keyBatches = batches.map({case(tr: TimeRecord) => (tr.requireString(deviceField), tr)})
+        val keyBatches = batches.map({ case (tr: TimeRecord) => (tr.requireString(deviceField),
+            tr) })
 
         (monitoringConfiguration.getWriteNamespace, deviceField,
             setupMonitoring(keyBatches, monitoringConfiguration))
@@ -176,14 +208,15 @@ object DeviceOps {
     /**
       * Setup device monitoring stream processing and get series and trigger events.
       *
-      * @param batches                 time records
+      * @param batches time records
       * @return tuple of output series and trigger events
       */
     def getDeviceOpsOutput(batches: DStream[TimeRecord],
                            monitoringConfiguration: DeviceOpsConfig): TimeRecordDStream = {
-        val keyBatches = batches.map({case(tr: TimeRecord) => (tr.requireString(DEFAULT_PARTITIONING_FIELD), tr)})
+        val keyBatches = batches.map({ case (tr: TimeRecord) => (tr.requireString
+        (monitoringConfiguration.deviceField), tr) })
 
-        (monitoringConfiguration.getWriteNamespace,DEFAULT_PARTITIONING_FIELD,
+        (monitoringConfiguration.getWriteNamespace, monitoringConfiguration.deviceField,
             setupMonitoring(keyBatches, monitoringConfiguration))
     }
 
@@ -191,14 +224,15 @@ object DeviceOps {
       * Setup device monitoring stream processing and get OutputStreams.
       *
       * @param batches                 time records
-      * @param deviceField namespace field that identifies a device
+      * @param deviceField             namespace field that identifies a device
       * @param monitoringConfiguration filters and triggers configuration.
       * @return OutputStreams
       */
     def monitorDevices(batches: DStream[TimeRecord],
                        deviceField: String,
                        monitoringConfiguration: DeviceOpsConfig): OutputStreams = {
-        val keyBatches = batches.map({case(tr: TimeRecord) => (tr.requireString(deviceField), tr)})
+        val keyBatches = batches.map({ case (tr: TimeRecord) => (tr.requireString(deviceField),
+            tr) })
 
         val series = setupMonitoring(keyBatches, monitoringConfiguration)
         OutputStreams((monitoringConfiguration.getWriteNamespace, deviceField, series))
@@ -212,7 +246,7 @@ object DeviceOps {
       * @return OutputStreams
       */
     def monitorDevices(batches: DStream[TimeRecord],
-                      monitoringConfiguration: DeviceOpsConfig): OutputStreams = {
-        monitorDevices(batches, DeviceOps.DEFAULT_PARTITIONING_FIELD, monitoringConfiguration)
+                       monitoringConfiguration: DeviceOpsConfig): OutputStreams = {
+        monitorDevices(batches, monitoringConfiguration.deviceField, monitoringConfiguration)
     }
 }

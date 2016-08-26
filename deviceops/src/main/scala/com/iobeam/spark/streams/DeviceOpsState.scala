@@ -8,6 +8,7 @@ import com.iobeam.spark.streams.transforms._
 object DeviceOpsConfig {
     val DEFAULT_READ_NAMESPACE = "input"
     val DEFAULT_WRITE_NAMESPACE = "device_ops"
+    val DEFAULT_DEVICE_FIELD = "device_id"
 }
 
 class DeviceOpsConfig extends Serializable {
@@ -17,6 +18,8 @@ class DeviceOpsConfig extends Serializable {
     var namespaceTransforms = scala.collection.mutable.Seq[(String, NamespaceTransform)]()
 
     var writeNamespace = DeviceOpsConfig.DEFAULT_WRITE_NAMESPACE
+
+    var deviceField = DeviceOpsConfig.DEFAULT_DEVICE_FIELD
 
     def addFieldTransform(readFieldName: String,
                           writeFieldName: String,
@@ -31,7 +34,6 @@ class DeviceOpsConfig extends Serializable {
     def addNamespaceTransform(writeField: String,
                               namespaceTransform: NamespaceTransform): DeviceOpsConfig = {
         this.namespaceTransforms = this.namespaceTransforms ++ Seq((writeField, namespaceTransform))
-
         this
     }
 
@@ -41,6 +43,9 @@ class DeviceOpsConfig extends Serializable {
 
     def getWriteNamespace = this.writeNamespace
 
+    def setDeviceField(fieldName : String) = {
+        this.deviceField
+    }
     def build: DeviceOpsState = {
 
         val fieldTransformsState = this.fieldsTransforms.mapValues(

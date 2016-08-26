@@ -7,6 +7,7 @@ import org.apache.spark.streaming.Time
   * State container used by update state by key
   */
 class DeviceState(val state: DeviceOpsState,
+                  val deviceIdField: String,
                   val deviceId: String,
                   val initializationTime: Time) extends Serializable {
 
