@@ -30,7 +30,7 @@ object DeviceOps {
 
                     if (outputVal.isDefined) {
                         val output = new TimeRecord(record.time,
-                            Map(deviceState.deviceId -> deviceState.deviceId,
+                            Map(deviceState.deviceIdField -> deviceState.deviceId,
                                 outputField -> outputVal.get))
 
                         listBuilder.append(output)
