@@ -3,7 +3,7 @@ package com.iobeam.spark.streams.examples.busbunching
 import com.iobeam.spark.streams.annotation.SparkRun
 import com.iobeam.spark.streams.model.{OutputStreams, TimeRecord}
 import com.iobeam.spark.streams.{AppContext, SparkApp}
-import org.apache.spark.streaming.Duration
+import org.apache.spark.streaming.Milliseconds
 
 import scala.collection.mutable.ListBuffer
 
@@ -19,7 +19,7 @@ import scala.collection.mutable.ListBuffer
   */
 
 object BusBunching {
-    val TIME_ACCELERATION = 10
+    val TIME_ACCELERATION = 1
     val BUS_POSITIONS_NAMESPACE = "buspositions"
     val BUNCHING_NAMESPACE = "bunchlevel"
     val GEO_SMOOTHED_NAMESPACE = "meanbunchlevel"
@@ -43,14 +43,14 @@ class BusBunching extends SparkApp {
     override def main(appContext: AppContext): OutputStreams = {
 
         getLogger.info("Setting up busbunching with iobeam interface class")
-        val stream = appContext.getData("busPosition")
+        val stream = appContext.getData("input")
         val s = stream.map(a => new BusPosition(a))
 
         // Streams of data arrive belonging to individual devices (buses).
         // We collect readings in a time window and take the first reading of each bus.
         val readings = s.map(positionsByBus)
-            .groupByKeyAndWindow(Duration(BusBunching.WINDOW_LENGTH_MS),
-                Duration(BusBunching.WINDOW_SLIDE_DURATION_MS))
+            .groupByKeyAndWindow(Milliseconds(BusBunching.WINDOW_LENGTH_MS),
+                Milliseconds(BusBunching.WINDOW_SLIDE_DURATION_MS))
             .mapValues(a => a.toList.sortWith(_.time < _.time)).mapValues(a => a.head)
 
         // We then collect a window of readings and group them by route and direction. It ensures
@@ -91,8 +91,8 @@ class BusBunching extends SparkApp {
         def this(timeRecord: TimeRecord) = {
             this(timeRecord.time,
                 timeRecord.requireString(BusBunching.ROUTE),
-                timeRecord.requireString(BusBunching.DIRECTION).toInt,
-                timeRecord.requireDouble(BusBunching.BUSID).toInt.toString,
+                timeRecord.requireDouble(BusBunching.DIRECTION).toInt,
+                timeRecord.requireString(BusBunching.BUSID),
                 timeRecord.requireDouble(BusBunching.LATITUDE),
                 timeRecord.requireDouble(BusBunching.LONGITUDE),
                 timeRecord.requireDouble(BusBunching.PROGRESS)
