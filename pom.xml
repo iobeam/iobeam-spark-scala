@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.iobeam</groupId>
     <artifactId>iobeam-spark-scala</artifactId>
     <packaging>pom</packaging>
-    <version>0.12-SNAPSHOT</version>
+    <version>0.12</version>
     <modules>
         <module>core</module>
         <module>deviceops</module>
@@ -49,7 +47,7 @@
         <connection>scm:git:git@github.com:iobeam/iobeam-spark-scala.git</connection>
         <developerConnection>scm:git:git@github.com:iobeam/iobeam-spark-scala.git
         </developerConnection>
-        <tag>HEAD</tag>
+        <tag>v0.12</tag>
     </scm>
 
     <distributionManagement>
